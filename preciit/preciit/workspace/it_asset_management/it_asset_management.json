@@ -1,0 +1,62 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"EkdyV3N5Ie\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">IT Management</span>\",\"col\":12}},{\"id\":\"0vWI7JIgVu\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Software Configuration\",\"col\":3}},{\"id\":\"MRZv-agHEy\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Asset Item\",\"col\":3}},{\"id\":\"SeWBP0WWci\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Asset Allocation\",\"col\":3}},{\"id\":\"TMK41vFKOG\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Asset Deallocate\",\"col\":3}}]",
+ "creation": "2026-03-06 14:15:17.732718",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "setting",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "IT Asset Management",
+ "links": [],
+ "modified": "2026-03-06 14:45:16.433254",
+ "modified_by": "Administrator",
+ "module": "PreciIT",
+ "name": "IT Asset Management",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 39.1,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Software Configuration",
+   "link_to": "Software Configuration",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Asset Item",
+   "link_to": "Asset Item",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Asset Allocation",
+   "link_to": "Asset Allocation",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Asset Deallocate",
+   "link_to": "Asset Deallocate",
+   "stats_filter": "[]",
+   "type": "DocType"
+  }
+ ],
+ "title": "IT Asset Management"
+}

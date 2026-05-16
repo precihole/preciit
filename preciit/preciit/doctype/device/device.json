@@ -1,0 +1,155 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "field:device_id",
+ "creation": "2025-09-13 23:04:00.967997",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "device_details_section",
+  "device_id",
+  "device_name",
+  "device_type",
+  "status",
+  "purchase_details_section",
+  "purchase_date",
+  "price",
+  "bill",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "device_details_section",
+   "fieldtype": "Section Break",
+   "label": "Device Details"
+  },
+  {
+   "fieldname": "device_id",
+   "fieldtype": "Data",
+   "label": "Device Id",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "device_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Device Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "device_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Device Type",
+   "options": "Device Type",
+   "reqd": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Not Assigned\nAssigned\nMaintenance\nDecommissioned\nCancelled",
+   "read_only": 1
+  },
+  {
+   "fieldname": "purchase_details_section",
+   "fieldtype": "Section Break",
+   "label": "Purchase Details"
+  },
+  {
+   "default": "Today",
+   "fieldname": "purchase_date",
+   "fieldtype": "Date",
+   "label": "Purchase Date",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "price",
+   "fieldtype": "Currency",
+   "label": "Price",
+   "non_negative": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "bill",
+   "fieldtype": "Attach",
+   "label": "Bill"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Device",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [
+  {
+   "link_doctype": "Device Repair Log",
+   "link_fieldname": "device"
+  },
+  {
+   "link_doctype": "Device Assignment Log",
+   "link_fieldname": "device"
+  }
+ ],
+ "modified": "2026-02-26 09:39:54.596314",
+ "modified_by": "Administrator",
+ "module": "PreciIT",
+ "name": "Device",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "import": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "select": 1,
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [
+  {
+   "color": "Gray",
+   "title": "Not Assigned"
+  },
+  {
+   "color": "Blue",
+   "title": "Assigned"
+  },
+  {
+   "color": "Orange",
+   "title": "Maintenance"
+  },
+  {
+   "color": "Red",
+   "title": "Decommissioned"
+  }
+ ]
+}

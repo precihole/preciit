@@ -1,0 +1,89 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:software_name",
+ "creation": "2026-02-23 16:10:35.525658",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "software_configuration_section",
+  "software_name",
+  "software_category",
+  "software_vendor",
+  "license_type",
+  "license_status"
+ ],
+ "fields": [
+  {
+   "fieldname": "software_configuration_section",
+   "fieldtype": "Section Break",
+   "label": "Software Configuration Item"
+  },
+  {
+   "fieldname": "software_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Software Name",
+   "options": "Software Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "software_category",
+   "fieldtype": "Link",
+   "label": "Software Category",
+   "options": "Software Category",
+   "reqd": 1
+  },
+  {
+   "fieldname": "software_vendor",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Software Vendor",
+   "options": "Supplier"
+  },
+  {
+   "description": "e.g Subscription",
+   "fieldname": "license_type",
+   "fieldtype": "Link",
+   "label": "License Type",
+   "options": "License Type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "license_status",
+   "fieldtype": "Link",
+   "label": "License Status",
+   "options": "License Status",
+   "reqd": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-05-15 12:19:49.008348",
+ "modified_by": "Administrator",
+ "module": "PreciIT",
+ "name": "Software Configuration Item",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

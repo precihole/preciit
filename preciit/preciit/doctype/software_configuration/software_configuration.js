@@ -1,0 +1,591 @@
+// Copyright (c) 2026, Precihole Group and contributors
+// For license information, please see license.txt
+
+// frappe.ui.form.on("Software Configuration", {
+// 	refresh(frm) {
+
+// 	},
+// });
+
+
+frappe.ui.form.on("Software Configuration", {
+
+    on_submit(frm) {
+
+        if (!frm.doc.asset_name) return;
+
+        frappe.show_alert({
+            message: "Asset updated successfully",
+            indicator: "green"
+        });
+
+        // ==============================
+        // OPEN ASSET ITEM
+        // ==============================
+        frappe.set_route(
+            "Form",
+            "Asset Item",
+            frm.doc.asset_name
+        );
+
+        // ==============================
+        // FORCE REFRESH AFTER OPEN
+        // ==============================
+        setTimeout(() => {
+
+            cur_frm.reload_doc();
+
+        }, 1500);
+    }
+});
+// This is for OS details child table, to show/hide license fields based on activation status
+
+frappe.ui.form.on("Software Configuration", {
+    refresh(frm) {
+
+        toggle_license_fields(
+            frm,
+            "os_details"
+        );
+
+        toggle_license_fields(
+            frm,
+            "software_details"
+        );
+    }
+});
+
+
+// ==============================
+// OS DETAILS CHILD TABLE
+// ==============================
+frappe.ui.form.on("Operating System Details", {
+
+    license_activation_status(frm, cdt, cdn) {
+
+        toggle_child_license_fields(
+            frm,
+            cdt,
+            cdn,
+            "os_details"
+        );
+    },
+
+    license_expiration_date(frm, cdt, cdn) {
+
+        handle_expiration_date(
+            frm,
+            cdt,
+            cdn,
+            "os_details"
+        );
+    },
+
+    never_expire(frm, cdt, cdn) {
+
+        handle_never_expire(
+            frm,
+            cdt,
+            cdn,
+            "os_details"
+        );
+    },
+
+    form_render(frm, cdt, cdn) {
+
+        toggle_mutual_fields(
+            frm,
+            cdt,
+            cdn,
+            "os_details"
+        );
+    }
+});
+
+
+// ==============================
+// SOFTWARE DETAILS CHILD TABLE
+// ==============================
+frappe.ui.form.on("Software Configuration Item Details", {
+
+    license_activation_status(frm, cdt, cdn) {
+
+        toggle_child_license_fields(
+            frm,
+            cdt,
+            cdn,
+            "software_details"
+        );
+    },
+
+    license_expiration_date(frm, cdt, cdn) {
+
+        handle_expiration_date(
+            frm,
+            cdt,
+            cdn,
+            "software_details"
+        );
+    },
+
+    never_expire(frm, cdt, cdn) {
+
+        handle_never_expire(
+            frm,
+            cdt,
+            cdn,
+            "software_details"
+        );
+    },
+
+    form_render(frm, cdt, cdn) {
+
+        toggle_mutual_fields(
+            frm,
+            cdt,
+            cdn,
+            "software_details"
+        );
+    }
+});
+
+
+// ==============================
+// COMMON FUNCTIONS
+// ==============================
+
+// Toggle all rows
+function toggle_license_fields(frm, table_field) {
+
+    (frm.doc[table_field] || []).forEach(row => {
+
+        toggle_child_license_fields(
+            frm,
+            row.doctype,
+            row.name,
+            table_field
+        );
+    });
+}
+
+
+// Hide license fields for UnLicensed
+function toggle_child_license_fields(frm, cdt, cdn, table_field) {
+
+    let row = locals[cdt][cdn];
+
+    let hide_fields =
+        row.license_activation_status === "UnLicensed";
+
+    let fields = [
+        "never_expire",
+        "license_type",
+        "license_key",
+        "license_activation_date",
+        "license_expiration_date"
+    ];
+
+    fields.forEach(field => {
+
+        frm.fields_dict[table_field]
+            .grid
+            .update_docfield_property(
+                field,
+                "hidden",
+                hide_fields
+            );
+    });
+
+    frm.refresh_field(table_field);
+}
+
+
+// Expiration date logic
+function handle_expiration_date(
+    frm,
+    cdt,
+    cdn,
+    table_field
+) {
+
+    let row = locals[cdt][cdn];
+
+    if (row.license_expiration_date) {
+
+        frappe.model.set_value(
+            cdt,
+            cdn,
+            "never_expire",
+            0
+        );
+    }
+
+    toggle_mutual_fields(
+        frm,
+        cdt,
+        cdn,
+        table_field
+    );
+}
+
+
+// Never expire logic
+function handle_never_expire(
+    frm,
+    cdt,
+    cdn,
+    table_field
+) {
+
+    let row = locals[cdt][cdn];
+
+    if (row.never_expire) {
+
+        frappe.model.set_value(
+            cdt,
+            cdn,
+            "license_expiration_date",
+            null
+        );
+    }
+
+    toggle_mutual_fields(
+        frm,
+        cdt,
+        cdn,
+        table_field
+    );
+}
+
+
+// Toggle mutually exclusive fields
+function toggle_mutual_fields(
+    frm,
+    cdt,
+    cdn,
+    table_field
+) {
+
+    let row = locals[cdt][cdn];
+
+    let grid_row =
+        frm.fields_dict[table_field]
+            .grid
+            .grid_rows_by_docname[row.name];
+
+    if (!grid_row) return;
+
+    // Hide never expire if date exists
+    grid_row.toggle_display(
+        "never_expire",
+        !row.license_expiration_date
+    );
+
+    // Hide expiration date if checkbox checked
+    grid_row.toggle_display(
+        "license_expiration_date",
+        !row.never_expire
+    );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// frappe.ui.form.on("Software Configuration", {
+//     refresh(frm) {
+//         toggle_license_fields(frm);
+//     }
+// });
+
+
+// frappe.ui.form.on("Operating System Details", {
+//     license_activation_status(frm, cdt, cdn) {
+//         toggle_child_license_fields(frm, cdt, cdn);
+//     }
+// });
+
+// function toggle_license_fields(frm) {
+//     (frm.doc.os_details || []).forEach(row => {
+//         toggle_child_license_fields(frm, row.doctype, row.name);
+//     });
+// }
+
+// function toggle_child_license_fields(frm, cdt, cdn) {
+//     let row = locals[cdt][cdn];
+
+//     let hide_fields = row.license_activation_status === "UnLicensed";
+
+//     // DO NOT HIDE activation_status
+
+
+//     frm.fields_dict["os_details"].grid.update_docfield_property(
+//         "never_expire",
+//         "hidden",
+//         hide_fields
+//     );
+
+// 	frm.fields_dict["os_details"].grid.update_docfield_property(
+// 		"license_type",
+// 		"hidden",
+// 		hide_fields
+// 	);
+
+// 	frm.fields_dict["os_details"].grid.update_docfield_property(
+//         "license_key",
+//         "hidden",
+//         hide_fields
+//     );
+// 	frm.fields_dict["os_details"].grid.update_docfield_property(
+//         "license_activation_date",
+//         "hidden",
+//         hide_fields
+//     );
+// 	frm.fields_dict["os_details"].grid.update_docfield_property(
+//         "license_expiration_date",
+//         "hidden",
+//         hide_fields
+//     );
+
+//     frm.refresh_field("os_details");
+// }
+
+// //never expire and expiration date are mutually exclusive
+// frappe.ui.form.on("Operating System Details", {
+
+//     // When expiration date changes
+//     license_expiration_date(frm, cdt, cdn) {
+
+//         let row = locals[cdt][cdn];
+
+//         // If date entered → uncheck never_expire
+//         if (row.license_expiration_date) {
+
+//             frappe.model.set_value(
+//                 cdt,
+//                 cdn,
+//                 "never_expire",
+//                 0
+//             );
+//         }
+
+//         toggle_fields(frm, cdt, cdn);
+//     },
+
+//     // When checkbox changes
+//     never_expire(frm, cdt, cdn) {
+
+//         let row = locals[cdt][cdn];
+
+//         // If checkbox checked → clear expiration date
+//         if (row.never_expire) {
+
+//             frappe.model.set_value(
+//                 cdt,
+//                 cdn,
+//                 "license_expiration_date",
+//                 null
+//             );
+//         }
+
+//         toggle_fields(frm, cdt, cdn);
+//     },
+
+//     // When row opens
+//     form_render(frm, cdt, cdn) {
+
+//         toggle_fields(frm, cdt, cdn);
+//     }
+// });
+
+
+// // Hide/Show fields
+// function toggle_fields(frm, cdt, cdn) {
+
+//     let row = locals[cdt][cdn];
+
+//     let grid_row = frm.fields_dict["os_details"]
+//         .grid
+//         .grid_rows_by_docname[row.name];
+
+//     if (!grid_row) return;
+
+//     // Hide never_expire if date exists
+//     grid_row.toggle_display(
+//         "never_expire",
+//         !row.license_expiration_date
+//     );
+
+//     // Hide expiration date if checkbox checked
+//     grid_row.toggle_display(
+//         "license_expiration_date",
+//         !row.never_expire
+//     );
+// }
+
+
+
+// /////////////////////////////////////////////////////////////////////////////////////////////////////////
+// // This is for software details child table, to show/hide license fields based on activation status    //                                                                                           //
+// //	Dont mix the code of both child table "OS configuration" and "Software Configuration" becuause 	   //																				   //
+// //	most of the fields are same in both tables.																								   //
+// /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// frappe.ui.form.on("Software Configuration", {
+//     refresh(frm) {
+//         toggle_license_fields(frm);
+//     }
+// });
+
+
+// frappe.ui.form.on("Software Configuration Item Details", {
+//     license_activation_status(frm, cdt, cdn) {
+//         toggle_child_license_fields(frm, cdt, cdn);
+//     }
+// });
+
+// function toggle_license_fields(frm) {
+//     (frm.doc.os_details || []).forEach(row => {
+//         toggle_child_license_fields(frm, row.doctype, row.name);
+//     });
+// }
+
+// function toggle_child_license_fields(frm, cdt, cdn) {
+//     let row = locals[cdt][cdn];
+
+//     let hide_fields = row.license_activation_status === "UnLicensed";
+
+//     // DO NOT HIDE activation_status
+
+
+//     frm.fields_dict["software_details"].grid.update_docfield_property(
+//         "never_expire",
+//         "hidden",
+//         hide_fields
+//     );
+
+// 	frm.fields_dict["software_details"].grid.update_docfield_property(
+// 		"license_type",
+// 		"hidden",
+// 		hide_fields
+// 	);
+
+// 	frm.fields_dict["software_details"].grid.update_docfield_property(
+//         "license_key",
+//         "hidden",
+//         hide_fields
+//     );
+// 	frm.fields_dict["software_details"].grid.update_docfield_property(
+//         "license_activation_date",
+//         "hidden",
+//         hide_fields
+//     );
+// 	frm.fields_dict["software_details"].grid.update_docfield_property(
+//         "license_expiration_date",
+//         "hidden",
+//         hide_fields
+//     );
+
+//     frm.refresh_field("software_details");
+// }
+
+// //never expire and expiration date are mutually exclusive
+// frappe.ui.form.on("Software Configuration Item Details", {
+
+//     // When expiration date changes
+//     license_expiration_date(frm, cdt, cdn) {
+
+//         let row = locals[cdt][cdn];
+
+//         // If date entered → uncheck never_expire
+//         if (row.license_expiration_date) {
+
+//             frappe.model.set_value(
+//                 cdt,
+//                 cdn,
+//                 "never_expire",
+//                 0
+//             );
+//         }
+
+//         toggle_fields(frm, cdt, cdn);
+//     },
+
+//     // When checkbox changes
+//     never_expire(frm, cdt, cdn) {
+
+//         let row = locals[cdt][cdn];
+
+//         // If checkbox checked → clear expiration date
+//         if (row.never_expire) {
+
+//             frappe.model.set_value(
+//                 cdt,
+//                 cdn,
+//                 "license_expiration_date",
+//                 null
+//             );
+//         }
+
+//         toggle_fields(frm, cdt, cdn);
+//     },
+
+//     // When row opens
+//     form_render(frm, cdt, cdn) {
+
+//         toggle_fields(frm, cdt, cdn);
+//     }
+// });
+
+
+// // Hide/Show fields
+// function toggle_fields(frm, cdt, cdn) {
+
+//     let row = locals[cdt][cdn];
+
+//     let grid_row = frm.fields_dict["software_details"]
+//         .grid
+//         .grid_rows_by_docname[row.name];
+
+//     if (!grid_row) return;
+
+//     // Hide never_expire if date exists
+//     grid_row.toggle_display(
+//         "never_expire",
+//         !row.license_expiration_date
+//     );
+
+//     // Hide expiration date if checkbox checked
+//     grid_row.toggle_display(
+//         "license_expiration_date",
+//         !row.never_expire
+//     );
+// }

@@ -1,0 +1,237 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-05-13 12:39:02.767187",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "it_asset_details_section",
+  "title",
+  "make_and_model",
+  "serial_no",
+  "host_name",
+  "device_type",
+  "user_id",
+  "password",
+  "status",
+  "company",
+  "column_break_eihh",
+  "description",
+  "section_break_eneo",
+  "device_configuration",
+  "network_interface_controller_section",
+  "network_interface_controller",
+  "section_break_oroo",
+  "floor",
+  "location",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "it_asset_details_section",
+   "fieldtype": "Section Break",
+   "label": "IT Asset Details"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title"
+  },
+  {
+   "fieldname": "make_and_model",
+   "fieldtype": "Data",
+   "in_preview": 1,
+   "label": "Make and Model",
+   "reqd": 1
+  },
+  {
+   "fieldname": "serial_no",
+   "fieldtype": "Data",
+   "label": "Serial No"
+  },
+  {
+   "fieldname": "host_name",
+   "fieldtype": "Data",
+   "in_preview": 1,
+   "label": "Host Name"
+  },
+  {
+   "fieldname": "device_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Device Type",
+   "options": "Device Type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "user_id",
+   "fieldtype": "Data",
+   "label": "User Id"
+  },
+  {
+   "fieldname": "password",
+   "fieldtype": "Password",
+   "label": "Password"
+  },
+  {
+   "bold": 1,
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "no_copy": 1,
+   "options": "Draft\nAvailable\nSoftware Configured\nAssigned\nTransfer\nMaintenance\nDecommission",
+   "read_only": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_eihh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Description",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_eneo",
+   "fieldtype": "Section Break",
+   "label": "Device Hardware Specification"
+  },
+  {
+   "fieldname": "device_configuration",
+   "fieldtype": "Table",
+   "label": "Device Configuration",
+   "options": "Device Configuration"
+  },
+  {
+   "fieldname": "network_interface_controller_section",
+   "fieldtype": "Section Break",
+   "label": "Network Interface Controller"
+  },
+  {
+   "fieldname": "section_break_oroo",
+   "fieldtype": "Section Break",
+   "label": "Location"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Asset Item",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "floor",
+   "fieldtype": "Link",
+   "label": "Floor",
+   "options": "Asset Floor"
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Link",
+   "label": "Location",
+   "options": "Asset Location"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Asset Item",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "network_interface_controller",
+   "fieldtype": "Table",
+   "label": "Network Interface Controller",
+   "options": "Network Interface Controller Details"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [
+  {
+   "link_doctype": "Software Configuration",
+   "link_fieldname": "asset_name"
+  },
+  {
+   "link_doctype": "Asset Allocation",
+   "link_fieldname": "asset",
+   "table_fieldname": "Asset"
+  }
+ ],
+ "modified": "2026-05-15 14:29:24.538320",
+ "modified_by": "Administrator",
+ "module": "PreciIT",
+ "name": "Asset Item",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "show_preview_popup": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [
+  {
+   "color": "Gray",
+   "title": "Draft"
+  },
+  {
+   "color": "Green",
+   "title": "Available"
+  },
+  {
+   "color": "Light Blue",
+   "title": "Software Configured"
+  },
+  {
+   "color": "Blue",
+   "title": "Assigned"
+  },
+  {
+   "color": "Pink",
+   "title": "Transfer"
+  },
+  {
+   "color": "Yellow",
+   "title": "Maintenance"
+  },
+  {
+   "color": "Red",
+   "title": "Decommission"
+  }
+ ]
+}
