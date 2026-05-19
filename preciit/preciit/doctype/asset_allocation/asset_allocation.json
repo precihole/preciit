@@ -10,6 +10,7 @@
   "assign_date",
   "department",
   "company",
+  "status",
   "assigned_device",
   "amended_from"
  ],
@@ -19,15 +20,14 @@
    "fieldtype": "Link",
    "label": "Employee",
    "options": "Employee",
-   "reqd": 1,
-   "unique": 1
+   "reqd": 1
   },
   {
-   "allow_on_submit": 1,
    "fieldname": "assigned_device",
    "fieldtype": "Table",
    "label": "Assigned Device",
    "options": "System Configuration Item",
+   "read_only": 1,
    "reqd": 1
   },
   {
@@ -36,8 +36,7 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Employee Name",
-   "reqd": 1,
-   "unique": 1
+   "reqd": 1
   },
   {
    "fieldname": "assign_date",
@@ -69,18 +68,20 @@
    "print_hide": 1,
    "read_only": 1,
    "search_index": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Status",
+   "options": "Draft\nAllocated\nDeallocated\nCancelled"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "links": [
-  {
-   "link_doctype": "Asset Deallocation",
-   "link_fieldname": "asset"
-  }
- ],
- "modified": "2026-05-16 09:56:36.124779",
+ "links": [],
+ "modified": "2026-05-18 12:57:46.163642",
  "modified_by": "Administrator",
  "module": "PreciIT",
  "name": "Asset Allocation",
@@ -105,8 +106,20 @@
  "sort_order": "DESC",
  "states": [
   {
-   "color": "Blue",
-   "title": "Assigned"
+   "color": "Gray",
+   "title": "Draft"
+  },
+  {
+   "color": "Green",
+   "title": "Allocated"
+  },
+  {
+   "color": "Orange",
+   "title": "Deallocated"
+  },
+  {
+   "color": "Red",
+   "title": "Cancelled"
   }
  ]
 }

@@ -48,7 +48,7 @@ class AssetAllocation(Document):
             # ======================
             # ALREADY ALLOCATED
             # ======================
-            if status == "Assigned":
+            if status == "Allocated":
 
                 frappe.throw(
                     _("Asset {0} is already allocated to another employee")
@@ -72,7 +72,24 @@ class AssetAllocation(Document):
                 "Asset Item",
                 row.asset,
                 "status",
-                "Assigned",
+                "Allocated",
+                update_modified=False
+            )
+
+             # UPDATE CHILD TABLE STATUS
+            frappe.db.set_value(
+                row.doctype,
+                row.name,
+                "status",
+                "Allocated",
+                update_modified=False
+            )
+
+            # ======================
+            # UPDATE CURRENT DOC STATUS
+            self.db_set(
+                "status",
+                "Allocated",
                 update_modified=False
             )
 
@@ -93,7 +110,66 @@ class AssetAllocation(Document):
                 "Asset Item",
                 row.asset,
                 "status",
-                "Software Configured",
+                "Available",
                 update_modified=False
             )
-   
+
+
+@frappe.whitelist()
+def deallocate_assets(docname):
+
+    doc = frappe.get_doc(
+        "Asset Allocation",
+        docname
+    )
+
+    # ======================
+    # VALIDATION
+    # ======================
+    if doc.docstatus != 1:
+        frappe.throw("Only submitted documents can be deallocated")
+
+    if doc.status != "Allocated":
+        frappe.throw("Assets are already deallocated")
+
+    if not doc.assigned_device:
+        frappe.throw("No assigned devices found")
+
+    # ======================
+    # DEALLOCATE
+    # ======================
+    for row in doc.assigned_device:
+
+        if not row.asset:
+            continue
+
+        # UPDATE ASSET ITEM STATUS
+        frappe.db.set_value(
+            "Asset Item",
+            row.asset,
+            "status",
+            "Available",
+            update_modified=False
+        )
+
+        # UPDATE CHILD TABLE STATUS
+        frappe.db.set_value(
+            row.doctype,
+            row.name,
+            "status",
+            "Deallocated",
+            update_modified=False
+        )
+
+    # ======================
+    # UPDATE PARENT STATUS
+    # ======================
+    frappe.db.set_value(
+        "Asset Allocation",
+        doc.name,
+        "status",
+        "Deallocated",
+        update_modified=False
+    )
+
+    frappe.db.commit()

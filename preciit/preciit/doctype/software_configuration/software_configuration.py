@@ -1,39 +1,49 @@
-# Copyright (c) 2026, Precihole Group and contributors
+# Copyright (c) 2026, Shubham Mishra and contributors
 # For license information, please see license.txt
 
 import frappe
 from frappe.model.document import Document
 from frappe.model.naming import make_autoname
 
+#
+
 
 class SoftwareConfiguration(Document):
 
+    # ======================
+    # VALIDATE
+    # ======================
     def validate(self):
 
-        # ==============================
         # VALIDATE ASSET NAME
-        # ==============================
         if not self.asset_name:
             frappe.throw("Asset Name is required")
 
-        # ==============================
         # CHECK ASSET EXISTS
-        # ==============================
         if not frappe.db.exists("Asset Item", self.asset_name):
             frappe.throw(
                 f"Asset Item {self.asset_name} does not exist"
             )
 
+    # ======================
+    # ON SUBMIT
+    # ======================
     def on_submit(self):
 
-        # ==============================
-        # UPDATE ASSET STATUS
-        # ==============================
+        # UPDATE ASSET ITEM STATUS
         frappe.db.set_value(
             "Asset Item",
             self.asset_name,
             "status",
-            "Software Configured"
+            "Available",
+            update_modified=False
+        )
+
+        # UPDATE CURRENT DOC STATUS
+        self.db_set(
+            "status",
+            "Software Configured",
+            update_modified=False
         )
 
     # ======================
@@ -41,25 +51,13 @@ class SoftwareConfiguration(Document):
     # ======================
     def on_cancel(self):
 
-        self.db_set(
-            "status",
-            "Cancelled",
-            update_modified=False
-        )
-
-        if not self.assigned_device:
-            return
-
-        for row in self.assigned_device:
-
-            if not row.asset:
-                continue
+        # RESET ASSET STATUS
+        if self.asset_name:
 
             frappe.db.set_value(
                 "Asset Item",
-                row.asset,
+                self.asset_name,
                 "status",
-                "Available",
+                "Instock",
                 update_modified=False
             )
-    

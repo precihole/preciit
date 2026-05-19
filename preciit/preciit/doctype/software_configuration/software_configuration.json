@@ -8,6 +8,7 @@
  "field_order": [
   "asset_section",
   "asset_name",
+  "status",
   "os_details_section",
   "os_details",
   "software_details_section",
@@ -60,13 +61,20 @@
    "print_hide": 1,
    "read_only": 1,
    "search_index": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Status",
+   "options": "Draft\nSoftware Configured\nCancelled"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-05-15 10:46:16.649990",
+ "modified": "2026-05-18 10:49:11.844276",
  "modified_by": "Administrator",
  "module": "PreciIT",
  "name": "Software Configuration",
@@ -90,5 +98,18 @@
  "rows_threshold_for_grid_search": 20,
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [
+  {
+   "color": "Blue",
+   "title": "Draft"
+  },
+  {
+   "color": "Green",
+   "title": "Software Configured"
+  },
+  {
+   "color": "Red",
+   "title": "Cancled"
+  }
+ ]
 }

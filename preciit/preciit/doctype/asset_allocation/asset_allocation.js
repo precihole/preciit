@@ -5,38 +5,47 @@ frappe.ui.form.on("Asset Allocation", {
 
     refresh(frm) {
 
-
-
         // ==============================
-        // ✅ ASSET DEALLOCATION
+        // ASSET DEALLOCATION
         // ==============================
-        if (
-            frm.doc.docstatus === 1
-        ) {
+        if (frm.doc.docstatus === 1 && frm.doc.status === "Allocated") {
 
-            frm.add_custom_button("Asset Deallocation", () => {
+            frm.add_custom_button(
+                "Asset Deallocation",
+                () => {
 
-                frappe.new_doc("Asset Deallocation", {}, (doc) => {
+                    let assets = (frm.doc.assigned_device || [])
+                        .map(r => r.asset)
+                        .join(", ");
 
-                    doc.employee = frm.doc.employee;
+                    frappe.confirm(
 
-                    (frm.doc.assigned_device || []).forEach(r => {
+                        `Are you sure you want to deallocate:<br><br><b>${assets}</b>?`,
 
-                        let row = frappe.model.add_child(
-                            doc,
-                            "device_deallocation"
-                        );
+                        () => {
 
-                        row.asset = r.asset;
-                    });
+                            frappe.call({
+                                method: "preciit.preciit.doctype.asset_allocation.asset_allocation.deallocate_assets",
+                                args: {
+                                    docname: frm.doc.name
+                                },
+                                callback: function(r) {
 
-                });
+                                    if (!r.exc) {
+                                        frappe.msgprint("Assets Deallocated Successfully");
+                                        frm.reload_doc();
+                                    }
+                                }
+                            });
 
-            }, "Actions");
+                        }
+                    );
+                },
+                "Actions"
+            );
         }
     }
 });
-
 
 frappe.ui.form.on("Asset Allocation", {
 
@@ -73,18 +82,3 @@ frappe.ui.form.on("Asset Allocation", {
     }
 });
 
-// frappe.listview_settings["Asset Allocation"] = {
-
-//     get_indicator(doc) {
-
-//         if (doc.status === "Assigned") {
-//             return ["Assigned", "blue", "status,=,Assigned"];
-//         }
-
-//         if (doc.status === "Cancelled") {
-//             return ["Cancelled", "red", "status,=,Cancelled"];
-//         }
-
-//         return ["Draft", "gray", "status,=,UNDEFINED"];
-//     }
-// };

@@ -24,6 +24,7 @@
   "section_break_oroo",
   "floor",
   "location",
+  "asset_address",
   "amended_from"
  ],
  "fields": [
@@ -84,7 +85,7 @@
    "in_standard_filter": 1,
    "label": "Status",
    "no_copy": 1,
-   "options": "Draft\nAvailable\nSoftware Configured\nAssigned\nTransfer\nMaintenance\nDecommission",
+   "options": "Draft\nAvailable\nSoftware Configured\nAssigned\nTransfer\nMaintenance\nDecommissioned",
    "read_only": 1
   },
   {
@@ -163,6 +164,14 @@
    "fieldtype": "Table",
    "label": "Network Interface Controller",
    "options": "Network Interface Controller Details"
+  },
+  {
+   "fetch_from": "location.addresss",
+   "fieldname": "asset_address",
+   "fieldtype": "Small Text",
+   "label": "Asset Full Address",
+   "read_only": 1,
+   "reqd": 1
   }
  ],
  "grid_page_length": 50,
@@ -177,9 +186,13 @@
    "link_doctype": "Asset Allocation",
    "link_fieldname": "asset",
    "table_fieldname": "Asset"
+  },
+  {
+   "link_doctype": "Asset Decommissioning",
+   "link_fieldname": "asset"
   }
  ],
- "modified": "2026-05-15 14:29:24.538320",
+ "modified": "2026-05-19 12:25:22.006346",
  "modified_by": "Administrator",
  "module": "PreciIT",
  "name": "Asset Item",
@@ -211,15 +224,15 @@
   },
   {
    "color": "Green",
+   "title": "Instock"
+  },
+  {
+   "color": "Cyan",
    "title": "Available"
   },
   {
-   "color": "Light Blue",
-   "title": "Software Configured"
-  },
-  {
    "color": "Blue",
-   "title": "Assigned"
+   "title": "Allocated"
   },
   {
    "color": "Pink",
@@ -227,11 +240,11 @@
   },
   {
    "color": "Yellow",
-   "title": "Maintenance"
+   "title": "Repair"
   },
   {
-   "color": "Red",
-   "title": "Decommission"
+   "color": "Orange",
+   "title": "Decommissioned"
   }
  ]
 }

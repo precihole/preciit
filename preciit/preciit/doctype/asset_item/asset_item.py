@@ -124,6 +124,6 @@ class AssetItem(Document):
         # ======================
         self.db_set(
             "status",
-            "Available",
+            "Instock",
             update_modified=False
         )
