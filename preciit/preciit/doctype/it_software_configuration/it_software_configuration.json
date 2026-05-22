@@ -1,0 +1,115 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "SOFTWARE-CONFIG-.YYYY.-.#####",
+ "creation": "2026-04-17 12:41:15.035029",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "asset_section",
+  "it_asset_item",
+  "status",
+  "os_details_section",
+  "os_details",
+  "software_details_section",
+  "software_details",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "asset_section",
+   "fieldtype": "Section Break",
+   "label": "Asset"
+  },
+  {
+   "fieldname": "os_details_section",
+   "fieldtype": "Section Break",
+   "label": "OS Details"
+  },
+  {
+   "fieldname": "os_details",
+   "fieldtype": "Table",
+   "label": "OS details",
+   "options": "IT Operating System Details"
+  },
+  {
+   "fieldname": "software_details_section",
+   "fieldtype": "Section Break",
+   "label": "Software Details"
+  },
+  {
+   "fieldname": "software_details",
+   "fieldtype": "Table",
+   "label": "Software Details",
+   "options": "IT Software Configuration Item Details"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "IT Software Configuration",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Status",
+   "options": "Draft\nSoftware Configured\nCancelled"
+  },
+  {
+   "fieldname": "it_asset_item",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "IT Asset Item",
+   "options": "IT Asset Item",
+   "read_only": 1,
+   "reqd": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-05-21 15:52:33.009252",
+ "modified_by": "Administrator",
+ "module": "PreciIT",
+ "name": "IT Software Configuration",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [
+  {
+   "color": "Blue",
+   "title": "Draft"
+  },
+  {
+   "color": "Green",
+   "title": "Software Configured"
+  },
+  {
+   "color": "Red",
+   "title": "Cancled"
+  }
+ ]
+}

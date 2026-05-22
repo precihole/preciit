@@ -1,0 +1,127 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "REP-.YYYY.-.#####",
+ "creation": "2026-05-19 16:42:21.369479",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "asset_section",
+  "it_asset_item",
+  "status",
+  "company",
+  "asset_repair_item_details_section",
+  "asset_repair_item_details",
+  "total_repair_coast_section",
+  "all_component_repair_cost",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "asset_section",
+   "fieldtype": "Section Break",
+   "label": "Asset"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Status",
+   "options": "Draft\nUnder Repair\nCompleted\nCancelled"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "asset_repair_item_details_section",
+   "fieldtype": "Section Break",
+   "label": "Asset Repair Item Details"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "asset_repair_item_details",
+   "fieldtype": "Table",
+   "label": "Asset Repair Item Details",
+   "options": "IT Asset Repair Item"
+  },
+  {
+   "fieldname": "total_repair_coast_section",
+   "fieldtype": "Section Break",
+   "label": "Total Repair Cost"
+  },
+  {
+   "fieldname": "all_component_repair_cost",
+   "fieldtype": "Currency",
+   "label": "All Component Repair Cost"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "IT Asset Repair",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "it_asset_item",
+   "fieldtype": "Link",
+   "label": "IT Asset Item",
+   "options": "IT Asset Item",
+   "reqd": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-05-21 15:34:08.337655",
+ "modified_by": "Administrator",
+ "module": "PreciIT",
+ "name": "IT Asset Repair",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [
+  {
+   "color": "Gray",
+   "title": "Draft"
+  },
+  {
+   "color": "Orange",
+   "title": "Under Repair"
+  },
+  {
+   "color": "Green",
+   "title": "Completed"
+  },
+  {
+   "color": "Red",
+   "title": "Cancelled"
+  }
+ ]
+}
