@@ -1,7 +1,8 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2026-05-20 14:11:25.397268",
+ "creation": "2026-05-25 14:17:56.573487",
+ "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -19,15 +20,12 @@
   "status",
   "component_warrenty__expiry",
   "component_purchase_date",
-  "assigned_technician_name",
   "component_condition",
-  "component_failure_date",
-  "component_repair_completed_date",
-  "component_repair_cost",
+  "replaced_component_cost",
+  "column_break_ohfu",
   "warrenty_covered",
   "component_quantity",
-  "component_condition_after_repair",
-  "device_configuration_row_name",
+  "old_device_configuration_row_name",
   "component_specification",
   "remarks",
   "issue_description",
@@ -50,22 +48,19 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Component Brand Name",
-   "options": "IT Component Brand Name",
-   "read_only": 1
+   "options": "IT Component Brand Name"
   },
   {
    "fieldname": "component_type",
    "fieldtype": "Link",
    "label": "Component Type",
-   "options": "IT Component Name",
-   "read_only": 1
+   "options": "IT Component Name"
   },
   {
    "description": "Eg. Corsair DDR5 Memory",
    "fieldname": "component_name",
    "fieldtype": "Data",
-   "label": "Component Name",
-   "read_only": 1
+   "label": "Component Name"
   },
   {
    "fieldname": "component_category",
@@ -129,6 +124,12 @@
    "options": "\nNew\nGood\nActive\nAvailable\nInstalled\nConfigured\nIn Use\nAllocated\nIdle\nStandby\nUnder Observation\nRepair Required\nUnder Repair\nTesting\nPartially Working\nDamaged\nFaulty\nOverheated\nDisconnected\nMissing\nReplaced\nUpgraded\nDeprecated\nExpired\nInactive\nDisabled\nRemoved\nScrap\nDecommissioned\nDisposed"
   },
   {
+   "fieldname": "warrenty_covered",
+   "fieldtype": "Select",
+   "label": "Warrenty Covered",
+   "options": "\nYes\nNo"
+  },
+  {
    "description": "Eg. 2",
    "fieldname": "component_quantity",
    "fieldtype": "Data",
@@ -150,33 +151,6 @@
    "label": "Remarks"
   },
   {
-   "fieldname": "warrenty_covered",
-   "fieldtype": "Select",
-   "label": "Warrenty Covered",
-   "options": "\nYes\nNo"
-  },
-  {
-   "fieldname": "assigned_technician_name",
-   "fieldtype": "Data",
-   "label": "Assigned Technician Name"
-  },
-  {
-   "fieldname": "component_failure_date",
-   "fieldtype": "Date",
-   "label": "Component Failure Date"
-  },
-  {
-   "fieldname": "component_repair_completed_date",
-   "fieldtype": "Date",
-   "label": "Component Repair Completed Date"
-  },
-  {
-   "description": "NOTE - particular component repair cost only.",
-   "fieldname": "component_repair_cost",
-   "fieldtype": "Currency",
-   "label": "Component Repair Cost"
-  },
-  {
    "fieldname": "issue_description",
    "fieldtype": "Small Text",
    "label": "Issue Description"
@@ -187,26 +161,30 @@
    "label": "Bill"
   },
   {
-   "fieldname": "component_condition_after_repair",
-   "fieldtype": "Select",
-   "label": "Component Condition After Repair",
-   "options": "\nGood\nPartial\nScrap"
+   "description": "Eg. write the name old component row name.",
+   "fieldname": "old_device_configuration_row_name",
+   "fieldtype": "Data",
+   "label": "Old Device Configuration Row Name",
+   "reqd": 1
   },
   {
-   "fieldname": "device_configuration_row_name",
-   "fieldtype": "Data",
-   "label": "Device Configuration Row Name",
-   "read_only": 1
+   "fieldname": "column_break_ohfu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "replaced_component_cost",
+   "fieldtype": "Currency",
+   "label": "Replaced Component Cost"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-05-25 10:31:43.876699",
+ "modified": "2026-05-25 16:51:29.369343",
  "modified_by": "Administrator",
  "module": "PreciIT",
- "name": "IT Asset Repair Item",
+ "name": "IT Asset Repair Replace Item",
  "owner": "Administrator",
  "permissions": [],
  "row_format": "Dynamic",

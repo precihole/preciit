@@ -6,6 +6,7 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "it_asset_floor_section",
   "title"
  ],
  "fields": [
@@ -14,12 +15,17 @@
    "fieldtype": "Data",
    "label": "Title",
    "unique": 1
+  },
+  {
+   "fieldname": "it_asset_floor_section",
+   "fieldtype": "Section Break",
+   "label": "IT Asset Floor"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-04-14 11:09:33.608241",
+ "modified": "2026-05-22 11:26:08.092077",
  "modified_by": "Administrator",
  "module": "PreciIT",
  "name": "IT Asset Floor",

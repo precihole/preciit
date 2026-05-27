@@ -6,6 +6,7 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "it_subnet_section",
   "subnet",
   "information_section",
   "gateway"
@@ -29,12 +30,17 @@
    "fieldname": "gateway",
    "fieldtype": "Data",
    "label": "Gateway"
+  },
+  {
+   "fieldname": "it_subnet_section",
+   "fieldtype": "Section Break",
+   "label": "IT Subnet"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-04-14 12:28:50.078144",
+ "modified": "2026-05-22 11:24:22.070442",
  "modified_by": "Administrator",
  "module": "PreciIT",
  "name": "IT Subnet",

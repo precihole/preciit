@@ -219,4 +219,4 @@ class ITAssetItem(Document):
     # =========================================================
     def before_submit(self):
 
-        self.status = "Intock"
+        self.status = "Instock"

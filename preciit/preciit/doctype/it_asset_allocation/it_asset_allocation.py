@@ -4,132 +4,135 @@ from frappe.model.naming import make_autoname
 from frappe import _
 
 
+# Copyright (c) 2026, Precihole Group and contributors
+# For license information, please see license.txt
+
+import frappe
+from frappe import _
+from frappe.model.document import Document
+from frappe.model.naming import make_autoname
+
+
 class ITAssetAllocation(Document):
 
+    # ======================
+    # AUTONAME
+    # ======================
 
-	# ======================
-	# AUTONAME
-	# ======================
+    def autoname(self):
 
-	def autoname(self):
+        employee = (
+            self.employee_name or "EMP"
+        ).replace(" ", "-").upper()
 
-		employee = (
-			self.employee_name or "EMP"
-		).replace(" ", "-").upper()
+        year = frappe.utils.now_datetime().year
 
-		year = frappe.utils.now_datetime().year
-
-		self.name = make_autoname(
-			f"{employee}-{year}-.#####"
-		)
-
-
-
-	# ======================
-	# VALIDATE
-	# ======================
-
-	def validate(self):
-
-		if not self.assigned_device:
-			return
-
-		for row in self.assigned_device:
-
-			if not row.it_asset_item:
-				continue
-
-			status = frappe.db.get_value(
-				"IT Asset Item",
-				row.it_asset_item,
-				"status"
-			)
-
-			if status == "Allocated":
-
-				frappe.throw(
-					_("Asset {0} is already allocated")
-					.format(row.it_asset_item)
-				)
+        self.name = make_autoname(
+            f"{employee}-{year}-.#####"
+        )
 
 
 
-	# ======================
-	# BEFORE SUBMIT
-	# ======================
+    # ======================
+    # VALIDATE
+    # ======================
 
-	def before_submit(self):
+    def validate(self):
 
-		if not self.assigned_device:
-			return
+        if not self.assigned_device:
+            return
 
-		for row in self.assigned_device:
+        for row in self.assigned_device:
 
-			if not row.it_asset_item:
-				continue
+            if not row.it_asset_item:
+                continue
 
-			# UPDATE ASSET STATUS
-			frappe.db.set_value(
-				"IT Asset Item",
-				row.it_asset_item,
-				"status",
-				"Allocated",
-				update_modified=False
-			)
+            status = frappe.db.get_value(
+                "IT Asset Item",
+                row.it_asset_item,
+                "status"
+            )
 
-			# UPDATE CHILD ROW STATUS
-			frappe.db.set_value(
-				row.doctype,
-				row.name,
-				"status",
-				"Allocated",
-				update_modified=False
-			)
+            if status == "Allocated":
 
-		# UPDATE PARENT STATUS
-		self.status = "Allocated"
+                frappe.throw(
+                    _("Asset {0} is already allocated")
+                    .format(row.it_asset_item)
+                )
 
 
 
-	# ======================
-	# ON CANCEL
-	# ======================
+    # ======================
+    # BEFORE SUBMIT
+    # ======================
 
-	def on_cancel(self):
+    def before_submit(self):
 
-		if not self.assigned_device:
-			return
+        if not self.assigned_device:
+            return
 
-		for row in self.assigned_device:
+        for row in self.assigned_device:
 
-			if not row.it_asset_item:
-				continue
+            if not row.it_asset_item:
+                continue
 
-			# UPDATE ASSET STATUS
-			frappe.db.set_value(
-				"IT Asset Item",
-				row.it_asset_item,
-				"status",
-				"Available",
-				update_modified=False
-			)
+            # UPDATE IT ASSET ITEM STATUS
+            frappe.db.set_value(
+                "IT Asset Item",
+                row.it_asset_item,
+                "status",
+                "Allocated",
+                update_modified=False
+            )
 
-			# UPDATE CHILD ROW STATUS
-			frappe.db.set_value(
-				row.doctype,
-				row.name,
-				"status",
-				"Deallocated",
-				update_modified=False
-			)
+            # UPDATE CHILD TABLE STATUS
+            row.db_set(
+                "status",
+                "Allocated",
+                update_modified=False
+            )
 
-		# UPDATE PARENT STATUS
-		self.db_set(
-			"status",
-			"Cancelled",
-			update_modified=False
-		)
+        # UPDATE PARENT STATUS
+        self.status = "Allocated"
 
+
+
+    # ======================
+    # ON CANCEL
+    # ======================
+
+    def on_cancel(self):
+
+        if not self.assigned_device:
+            return
+
+        for row in self.assigned_device:
+
+            if not row.it_asset_item:
+                continue
+
+            # UPDATE IT ASSET ITEM STATUS
+            frappe.db.set_value(
+                "IT Asset Item",
+                row.it_asset_item,
+                "status",
+                "Available",
+                update_modified=False
+            )
+
+            # UPDATE CHILD TABLE STATUS
+            row.db_set(
+                "status",
+                "Deallocated",
+                update_modified=False
+            )
+
+        # UPDATE PARENT STATUS
+        self.db_set(
+            "status",
+            "Cancelled",
+            update_modified=False
+        )
 
 
 # ======================

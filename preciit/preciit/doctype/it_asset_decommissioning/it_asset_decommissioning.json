@@ -12,7 +12,7 @@
   "employee_name",
   "company",
   "status",
-  "asset_decommissioning",
+  "it_asset_decommissioning",
   "details",
   "amended_from"
  ],
@@ -36,12 +36,6 @@
    "fieldtype": "Date",
    "label": "Date",
    "reqd": 1
-  },
-  {
-   "fieldname": "asset_decommissioning",
-   "fieldtype": "Table",
-   "label": "Asset Decommissioning ",
-   "options": "IT System Configuration Item"
   },
   {
    "fieldname": "details",
@@ -78,16 +72,23 @@
    "label": "Employee Name",
    "read_only": 1,
    "reqd": 1
+  },
+  {
+   "fieldname": "it_asset_decommissioning",
+   "fieldtype": "Table",
+   "label": "IT Asset Decommissioning",
+   "options": "IT System Configuration Item"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-05-19 14:23:44.574339",
+ "modified": "2026-05-22 15:15:24.516791",
  "modified_by": "Administrator",
  "module": "PreciIT",
  "name": "IT Asset Decommissioning",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {

@@ -1,34 +1,24 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:os_version",
- "creation": "2026-04-17 14:58:41.685676",
+ "creation": "2026-05-22 11:09:54.484337",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "section_break_wmzl",
-  "os_version",
+  "section_break_jllx",
   "amended_from"
  ],
  "fields": [
   {
-   "fieldname": "section_break_wmzl",
-   "fieldtype": "Section Break",
-   "label": "OS Version"
-  },
-  {
-   "description": "Eg. Windows 11",
-   "fieldname": "os_version",
-   "fieldtype": "Data",
-   "label": "OS Version",
-   "unique": 1
+   "fieldname": "section_break_jllx",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "amended_from",
    "fieldtype": "Link",
    "label": "Amended From",
    "no_copy": 1,
-   "options": "IT OS Version",
+   "options": "IT Asset Transfer",
    "print_hide": 1,
    "read_only": 1,
    "search_index": 1
@@ -38,11 +28,10 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-05-22 11:24:36.953915",
+ "modified": "2026-05-22 11:09:54.484337",
  "modified_by": "Administrator",
  "module": "PreciIT",
- "name": "IT OS Version",
- "naming_rule": "By fieldname",
+ "name": "IT Asset Transfer",
  "owner": "Administrator",
  "permissions": [
   {

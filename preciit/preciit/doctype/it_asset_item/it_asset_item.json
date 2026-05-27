@@ -196,23 +196,23 @@
  "links": [
   {
    "link_doctype": "IT Software Configuration",
-   "link_fieldname": "asset_name"
+   "link_fieldname": "it_asset_item"
   },
   {
    "link_doctype": "IT Asset Allocation",
-   "link_fieldname": "asset",
+   "link_fieldname": "it_asset_item",
    "table_fieldname": "Asset"
   },
   {
    "link_doctype": "IT Asset Repair",
-   "link_fieldname": "asset_name"
+   "link_fieldname": "it_asset_item"
   },
   {
    "link_doctype": "IT Asset Decommissioning",
-   "link_fieldname": "asset"
+   "link_fieldname": "it_asset_item"
   }
  ],
- "modified": "2026-05-21 10:52:49.701173",
+ "modified": "2026-05-25 16:07:26.426172",
  "modified_by": "Administrator",
  "module": "PreciIT",
  "name": "IT Asset Item",
@@ -261,7 +261,7 @@
   },
   {
    "color": "Yellow",
-   "title": "Repair"
+   "title": "Under Repair"
   },
   {
    "color": "Orange",

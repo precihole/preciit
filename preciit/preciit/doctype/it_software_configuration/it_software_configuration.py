@@ -16,13 +16,13 @@ class ITSoftwareConfiguration(Document):
     def validate(self):
 
         # VALIDATE ASSET NAME
-        if not self.asset_name:
-            frappe.throw("Asset Name is required")
+        if not self.it_asset_item:
+            frappe.throw("Asset Item is required")
 
         # CHECK ASSET EXISTS
-        if not frappe.db.exists("IT Asset Item", self.asset_name):
+        if not frappe.db.exists("IT Asset Item", self.it_asset_item):
             frappe.throw(
-                f"Asset Item {self.asset_name} does not exist"
+                f"Asset Item {self.it_asset_item} does not exist"
             )
 
     # ======================
@@ -33,7 +33,7 @@ class ITSoftwareConfiguration(Document):
         # UPDATE ASSET ITEM STATUS
         frappe.db.set_value(
             "IT Asset Item",
-            self.asset_name,
+            self.it_asset_item,
             "status",
             "Available",
             update_modified=False
@@ -52,11 +52,11 @@ class ITSoftwareConfiguration(Document):
     def on_cancel(self):
 
         # RESET ASSET STATUS
-        if self.asset_name:
+        if self.it_asset_item:
 
             frappe.db.set_value(
                 "IT Asset Item",
-                self.asset_name,
+                self.it_asset_item,
                 "status",
                 "Instock",
                 update_modified=False

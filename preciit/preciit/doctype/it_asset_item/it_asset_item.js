@@ -74,7 +74,8 @@ frappe.ui.form.on("IT Asset Item", {
                     frm.doc.docstatus === 1 &&
                     frm.doc.status != "Allocated" &&
                     frm.doc.status != "Decommissioned" &&
-                    frm.doc.status != "Transfer"
+                    frm.doc.status != "Transfer" &&
+                    frm.doc.status != "Under Repair"
                 ) {
 
                     frm.add_custom_button("Decommission Asset", () => {
@@ -83,7 +84,7 @@ frappe.ui.form.on("IT Asset Item", {
 
                             let row = frappe.model.add_child(
                                 doc,
-                                "asset_decommissioning"
+                                "it_asset_decommissioning"
                             );
 
                             row.it_asset_item = frm.doc.name;
@@ -97,24 +98,20 @@ frappe.ui.form.on("IT Asset Item", {
                 // ==============================
                 // ✅ SEND FOR REPAIR
                 // ==============================
-                if (
+               if (
                     (frm.doc.docstatus === 1 && frm.doc.status == "Instock") ||
-                    (frm.doc.docstatus === 1 && frm.doc.status == "Available")
+                    (frm.doc.docstatus === 1 && frm.doc.status == "Available") ||
+                    (frm.doc.docstatus === 1 && frm.doc.status != "Under Repair")
                 ) {
 
                     frm.add_custom_button("Send for Repair", () => {
 
-                        frappe.route_options = {
+                        frappe.new_doc("IT Asset Repair", {
                             it_asset_item: frm.doc.name,
-                            company : frm.doc.company
-                        };
+                            company: frm.doc.company
+                        });
 
-                        frappe.new_doc("IT Asset Repair");
-
-                        // WAIT FOR NEW FORM LOAD
-                        frappe.after_ajax(() => {
-
-                            let repair_frm = cur_frm;
+                        frappe.route_hooks.after_load = (repair_frm) => {
 
                             // =========================
                             // CLEAR CHILD TABLE
@@ -124,13 +121,15 @@ frappe.ui.form.on("IT Asset Item", {
                             );
 
                             // =========================
-                            // ADD NEW ROWS
+                            // ADD CHILD ROWS
                             // =========================
                             (frm.doc.device_configuration || []).forEach(d => {
 
                                 let child = repair_frm.add_child(
                                     "asset_repair_item_details"
                                 );
+                                
+                                child.device_configuration_row_name = d.name;
 
                                 child.component_brand_name = d.component_brand_name;
 
@@ -162,21 +161,21 @@ frappe.ui.form.on("IT Asset Item", {
 
                                 child.remarks = d.remarks;
 
-
                             });
 
                             // =========================
-                            // REFRESH TABLE
+                            // REFRESH CHILD TABLE
                             // =========================
                             repair_frm.refresh_field(
                                 "asset_repair_item_details"
                             );
 
-                        });
+                            // REMOVE HOOK
+                            frappe.route_hooks.after_load = null;
+                        };
 
                     }, "Actions");
                 }
-
             },
 
             // ======================================
@@ -192,7 +191,7 @@ frappe.ui.form.on("IT Asset Item", {
 
 // =====================================
 // 🎨 STATUS COLORS
-// ======================================
+// ====================================
 function get_status_color(status) {
 
     const status_colors = {
@@ -209,9 +208,10 @@ function get_status_color(status) {
 
         "Transfer": "pink",
 
-        "Repair": "yellow",
+        "Under Repair": "yellow",
 
-        "Decommissioned": "red" };
+        "Decommissioned": "red" 
+    };
 
     return status_colors[status] || "red";
 }
@@ -393,967 +393,675 @@ frappe.ui.form.on("IT Network Interface Controller Details", {
 });
 
 
-// //===============================================================================pipeline==========================================================
-
-// frappe.ui.form.on("IT Asset Item", {
-
-//     refresh(frm) {
-
-//         frm.dashboard.clear_headline();
-
-//         // =========================================
-//         // DOCUMENT COUNTS
-//         // =========================================
-
-//         let repair_count = 0;
-//         let allocation_count = 0;
-//         let transfer_count = 0;
-//         let decommission_count = 0;
-
-//         // =========================================
-//         // REPAIR COUNT
-//         // =========================================
-
-//         frappe.call({
-//             method: "frappe.client.get_count",
-//             args: {
-//                 doctype: "IT Asset Repair",
-//                 filters: {
-//                     it_asset_item: frm.doc.name
-//                 }
-//             },
-//             callback: function(r) {
-
-//                 repair_count = r.message || 0;
-
-//                 render_pipeline();
-//             }
-//         });
-
-//         // =========================================
-//         // ALLOCATION COUNT
-//         // =========================================
-
-//         frappe.call({
-//             method: "frappe.client.get_count",
-//             args: {
-//                 doctype: "IT Asset Allocation",
-//                 filters: {
-//                     it_asset_item: frm.doc.name
-//                 }
-//             },
-//             callback: function(r) {
-
-//                 allocation_count = r.message || 0;
-
-//                 render_pipeline();
-//             }
-//         });
-
-//         // =========================================
-//         // TRANSFER COUNT
-//         // =========================================
-
-//         frappe.call({
-//             method: "frappe.client.get_count",
-//             args: {
-//                 doctype: "IT Asset Transfer",
-//                 filters: {
-//                     it_asset_item: frm.doc.name
-//                 }
-//             },
-//             callback: function(r) {
-
-//                 transfer_count = r.message || 0;
-
-//                 render_pipeline();
-//             }
-//         });
-
-//         // =========================================
-//         // DECOMMISSION COUNT
-//         // =========================================
-
-//         frappe.call({
-//             method: "frappe.client.get_count",
-//             args: {
-//                 doctype: "IT Asset Decommissioning",
-//                 filters: {
-//                     it_asset_item: frm.doc.name
-//                 }
-//             },
-//             callback: function(r) {
-
-//                 decommission_count = r.message || 0;
-
-//                 render_pipeline();
-//             }
-//         });
-
-//         // =========================================
-//         // RENDER PIPELINE
-//         // =========================================
-
-//         function render_pipeline() {
-
-//             frm.dashboard.set_headline(`
-
-// <style>
-
-// .form-message.blue{
-//     border:none !important;
-//     color:inherit !important;
-//     background:transparent !important;
-// }
-
-// [data-theme="dark"] .form-message.blue{
-//     border:none !important;
-//     color:#e5e7eb !important;
-//     background:#171717 !important;
-// }
-
-// .layout-main-section,
-// .form-dashboard-section,
-// .form-dashboard{
-//     background:transparent !important;
-//     border:none !important;
-//     box-shadow:none !important;
-// }
-
-// .asset-pipeline-wrapper{
-//     width:100%;
-//     overflow-x:auto;
-//     padding:10px 0;
-// }
-
-// .asset-pipeline{
-//     position:relative;
-//     width:900px;
-//     height:280px;
-//     margin:auto;
-// }
-
-// /* =========================================
-//    BOX
-// ========================================= */
-
-// .asset-node{
-//     position:absolute;
-//     padding:8px 18px;
-//     border-radius:14px;
-//     background:#fff;
-//     border:2px solid;
-//     font-size:11px;
-//     font-weight:600;
-//     color:#334155;
-//     white-space:nowrap;
-//     z-index:2;
-//     box-shadow:0 2px 8px rgba(0,0,0,0.05);
-//     transition:0.25s ease;
-//     cursor:pointer;
-//     text-align:center;
-// }
-
-// .asset-node:hover{
-//     transform:translateY(-2px);
-// }
-
-// /* =========================================
-//    DOCUMENT COUNT
-// ========================================= */
-
-// .doc-count{
-//     position:absolute;
-//     top:42px;
-//     left:50%;
-//     transform:translateX(-50%);
-//     font-size:10px;
-//     font-weight:700;
-//     white-space:nowrap;
-// }
-
-// /* =========================================
-//    COLORS
-// ========================================= */
-
-// .draft{
-//     border-color:#a855f7;
-// }
-
-// .stock{
-//     border-color:#3b82f6;
-// }
-
-// .config{
-//     border-color:#14b8a6;
-// }
-
-// .available{
-//     border-color:#22c55e;
-// }
-
-// .transfer{
-//     border-color:#f59e0b;
-// }
-
-// .allocate{
-//     border-color:#ef4444;
-// }
-
-// .repair{
-//     border-color:#06b6d4;
-// }
-
-// .decommissioned{
-//     border-color:#64748b;
-// }
-
-// /* =========================================
-//    ACTIVE COLORS
-// ========================================= */
-
-// .active-draft{
-//     background:#a855f7 !important;
-//     color:#fff !important;
-// }
-
-// .active-stock{
-//     background:#3b82f6 !important;
-//     color:#fff !important;
-// }
-
-// .active-config{
-//     background:#14b8a6 !important;
-//     color:#fff !important;
-// }
-
-// .active-available{
-//     background:#22c55e !important;
-//     color:#fff !important;
-// }
-
-// .active-transfer{
-//     background:#f59e0b !important;
-//     color:#fff !important;
-// }
-
-// .active-allocate{
-//     background:#ef4444 !important;
-//     color:#fff !important;
-// }
-
-// .active-repair{
-//     background:#06b6d4 !important;
-//     color:#fff !important;
-// }
-
-// .active-decommissioned{
-//     background:#64748b !important;
-//     color:#fff !important;
-// }
-
-// /* =========================================
-//    COUNT COLORS
-// ========================================= */
-
-// .transfer-count{
-//     color:#f59e0b;
-// }
-
-// .allocate-count{
-//     color:#ef4444;
-// }
-
-// .repair-count{
-//     color:#06b6d4;
-// }
-
-// .decommission-count{
-//     color:#64748b;
-// }
-
-// /* =========================================
-//    POSITIONS
-// ========================================= */
-
-// #draft{
-//     top:115px;
-//     left:20px;
-// }
-
-// #stock{
-//     top:115px;
-//     left:100px;
-// }
-
-// #config{
-//     top:115px;
-//     left:190px;
-// }
-
-// #available{
-//     top:115px;
-//     left:300px;
-// }
-
-// #transfer{
-//     top:40px;
-//     left:420px;
-// }
-
-// #transfer_return{
-//     top:40px;
-//     left:560px;
-// }
-
-// #allocated{
-//     top:190px;
-//     left:420px;
-// }
-
-// #deallocated{
-//     top:190px;
-//     left:560px;
-// }
-
-// #repair{
-//     top:115px;
-//     left:720px;
-// }
-
-// #decommissioned{
-//     top:190px;
-//     left:720px;
-// }
-
-// /* =========================================
-//    SVG
-// ========================================= */
-
-// .asset-pipeline svg{
-//     position:absolute;
-//     inset:0;
-//     width:100%;
-//     height:100%;
-//     pointer-events:none;
-//     z-index:1;
-// }
-
-// .flow{
-//     fill:none;
-//     stroke:#cbd5e1;
-//     stroke-width:2.5;
-//     stroke-linecap:round;
-//     stroke-linejoin:round;
-//     stroke-dasharray:5 5;
-//     animation:flowMove 15s linear infinite;
-// }
-
-// .active-flow{
-//     stroke:#22c55e !important;
-// }
-
-// @keyframes flowMove{
-//     from{
-//         stroke-dashoffset:0;
-//     }
-//     to{
-//         stroke-dashoffset:-1000;
-//     }
-// }
-
-// </style>
-
-// <div class="asset-pipeline-wrapper">
-
-// <div class="asset-pipeline">
-
-// <svg>
-
-// <path class="flow ${frm.doc.status!='Draft' ? 'active-flow' : ''}"
-// d="M 68 129 C 78 129, 90 129, 100 129"/>
-
-// <path class="flow ${['Configured','Available','Transfer','Transfer Return','Allocated','Deallocated','Repair','Decommissioned'].includes(frm.doc.status) ? 'active-flow' : ''}"
-// d="M 163 129 C 173 129, 180 129, 190 129"/>
-
-// <path class="flow ${['Available','Transfer','Transfer Return','Allocated','Deallocated','Repair','Decommissioned'].includes(frm.doc.status) ? 'active-flow' : ''}"
-// d="M 271 129 C 281 129, 290 129, 300 129"/>
-
-// <path class="flow ${['Transfer','Transfer Return'].includes(frm.doc.status) ? 'active-flow' : ''}"
-// d="M 373 129 C 395 129, 400 54, 420 54"/>
-
-// <path class="flow ${frm.doc.status=='Transfer Return' ? 'active-flow' : ''}"
-// d="M 500 54 C 520 54, 540 54, 560 54"/>
-
-// <path class="flow ${['Allocated','Deallocated','Repair','Decommissioned'].includes(frm.doc.status) ? 'active-flow' : ''}"
-// d="M 373 129 C 395 129, 400 204, 420 204"/>
-
-// <path class="flow ${['Deallocated','Repair','Decommissioned'].includes(frm.doc.status) ? 'active-flow' : ''}"
-// d="M 510 204 C 520 204, 535 204, 550 204"/>
-
-// <path class="flow ${frm.doc.status=='Repair' ? 'active-flow' : ''}"
-// d="M 645 204 C 675 204, 675 129, 700 129"/>
-
-// <path class="flow ${frm.doc.status=='Decommissioned' ? 'active-flow' : ''}"
-// d="M 645 204 C 660 204, 680 204, 700 204"/>
-
-// </svg>
-
-// <!-- =========================================
-//      BOXES
-// ========================================= -->
-
-// <div class="asset-node draft ${frm.doc.status=='Draft' ? 'active-draft' : ''}" id="draft">
-//     Draft
-// </div>
-
-// <div class="asset-node stock ${frm.doc.status=='Instock' ? 'active-stock' : ''}" id="stock">
-//     In Stock
-// </div>
-
-// <div class="asset-node config ${frm.doc.status=='Configured' ? 'active-config' : ''}" id="config">
-//     Configured
-// </div>
-
-// <div class="asset-node available ${frm.doc.status=='Available' ? 'active-available' : ''}" id="available">
-//     Available
-// </div>
-
-// <!-- TRANSFER -->
-
-// <div class="asset-node transfer ${frm.doc.status=='Transfer' ? 'active-transfer' : ''}"
-//     id="transfer"
-
-//     onclick="
-//     frappe.set_route(
-//         'List',
-//         'IT Asset Transfer',
-//         {
-//             it_asset_item:'${frm.doc.name}'
-//         }
-//     )
-// ">
-
-//     Transfer
-
-//     <div class="doc-count transfer-count">
-//         ${transfer_count} Docs
-//     </div>
-
-// </div>
-
-// <div class="asset-node transfer ${frm.doc.status=='Transfer Return' ? 'active-transfer' : ''}" id="transfer_return">
-//     Transfer Return
-// </div>
-
-// <!-- ALLOCATED -->
-
-// <div class="asset-node allocate ${frm.doc.status=='Allocated' ? 'active-allocate' : ''}"
-//     id="allocated"
-
-//     onclick="
-//     frappe.set_route(
-//         'List',
-//         'IT Asset Allocation',
-//         {
-//             it_asset_item:'${frm.doc.name}'
-//         }
-//     )
-// ">
-
-//     Allocated
-
-//     <div class="doc-count allocate-count">
-//         ${allocation_count} Docs
-//     </div>
-
-// </div>
-
-// <div class="asset-node allocate ${frm.doc.status=='Deallocated' ? 'active-allocate' : ''}" id="deallocated">
-//     Deallocated
-// </div>
-
-// <!-- REPAIR -->
-
-// <div class="asset-node repair ${frm.doc.status=='Repair' ? 'active-repair' : ''}"
-//     id="repair"
-
-//     onclick="
-//     frappe.set_route(
-//         'List',
-//         'IT Asset Repair',
-//         {
-//             it_asset_item:'${frm.doc.name}'
-//         }
-//     )
-// ">
-
-//     Repair
-
-//     <div class="doc-count repair-count">
-//         ${repair_count} Docs
-//     </div>
-
-// </div>
-
-// <!-- DECOMMISSION -->
-
-// <div class="asset-node decommissioned ${frm.doc.status=='Decommissioned' ? 'active-decommissioned' : ''}"
-//     id="decommissioned"
-
-//     onclick="
-//     frappe.set_route(
-//         'List',
-//         'IT Asset Decommissioning',
-//         {
-//             it_asset_item:'${frm.doc.name}'
-//         }
-//     )
-// ">
-
-//     Decommission
-
-//     <div class="doc-count decommission-count">
-//         ${decommission_count} Docs
-//     </div>
-
-// </div>
-
-// </div>
-// </div>
-
-//             `);
-//         }
-//     }
-// });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Pipline of IT Asset Statuses==============================================================================
-
-
-// frappe.ui.form.on("IT Asset Item", {
-//     refresh(frm) {
-
-//         frm.dashboard.clear_headline();
-
-//         frm.dashboard.set_headline(`
-
-// <style>
-
-// .form-message.blue{
-//     border:none !important;
-//     color:inherit !important;
-//     background:transparent !important;
-// }
-
-// /* ===================================
-//    DARK MODE
-// =================================== */
-
-// [data-theme="dark"] .form-message.blue{
-//     border:none !important;
-//     color:#e5e7eb !important;
-//     background:#171717 !important;
-// }
-
-// /* ===================================
-//    REMOVE ERPNext BACKGROUND
-// =================================== */
-
-// .layout-main-section,
-// .form-dashboard-section,
-// .form-dashboard{
-//     background:transparent !important;
-//     border:none !important;
-//     box-shadow:none !important;
-// }
-
-// /* ===================================
-//    WRAPPER
-// =================================== */
-
-// .asset-pipeline-wrapper{
-//     width:100%;
-//     overflow-x:auto;
-//     padding:10px 0;
-//     background:transparent;
-// }
-
-// /* ===================================
-//    MAIN CONTAINER
-// =================================== */
-
-// .asset-pipeline{
-//     position:relative;
-//     width:840px;
-//     height:260px;
-//     margin:auto;
-//     background:transparent;
-//     border:none;
-//     border-radius:18px;
-// }
-
-// /* ===================================
-//    BOX STYLE
-// =================================== */
-
-// .asset-node{
-//     position:absolute;
-//     padding:7px 15px;
-//     border-radius:14px;
-//     background:#ffffff;
-//     border:2px solid;
-//     font-size:11px;
-//     font-weight:600;
-//     color:#334155;
-//     white-space:nowrap;
-//     z-index:2;
-//     box-shadow:0 2px 8px rgba(0,0,0,0.05);
-//     transition:0.25s ease;
-// }
-
-// .asset-node:hover{
-//     transform:translateY(-2px);
-// }
-
-// /* ===================================
-//    COLORS
-// =================================== */
-
-// .draft{
-//     border-color:#a855f7;
-// }
-
-// .stock{
-//     border-color:#3b82f6;
-// }
-
-// .config{
-//     border-color:#14b8a6;
-// }
-
-// .available{
-//     border-color:#22c55e;
-// }
-
-// .transfer{
-//     border-color:#f59e0b;
-// }
-
-// .allocate{
-//     border-color:#ef4444;
-// }
-
-// .repair{
-//     border-color:#06b6d4;
-// }
-
-// .decommissioned{
-//     border-color:#64748b;
-// }
-
-// /* ===================================
-//    ACTIVE STATUS FILL
-// =================================== */
-
-// .active-draft{
-//     background:#a855f7 !important;
-//     color:#fff !important;
-//     box-shadow:0 0 12px rgba(168,85,247,.4);
-// }
-
-// .active-stock{
-//     background:#3b82f6 !important;
-//     color:#fff !important;
-//     box-shadow:0 0 12px rgba(59,130,246,.4);
-// }
-
-// .active-config{
-//     background:#14b8a6 !important;
-//     color:#fff !important;
-//     box-shadow:0 0 12px rgba(20,184,166,.4);
-// }
-
-// .active-available{
-//     background:#22c55e !important;
-//     color:#fff !important;
-//     box-shadow:0 0 12px rgba(34,197,94,.4);
-// }
-
-// .active-transfer{
-//     background:#f59e0b !important;
-//     color:#fff !important;
-//     box-shadow:0 0 12px rgba(245,158,11,.4);
-// }
-
-// .active-allocate{
-//     background:#ef4444 !important;
-//     color:#fff !important;
-//     box-shadow:0 0 12px rgba(239,68,68,.4);
-// }
-
-// .active-repair{
-//     background:#06b6d4 !important;
-//     color:#fff !important;
-//     box-shadow:0 0 12px rgba(6,182,212,.4);
-// }
-
-// .active-decommissioned{
-//     background:#64748b !important;
-//     color:#fff !important;
-//     box-shadow:0 0 12px rgba(100,116,139,.4);
-// }
-
-// /* ===================================
-//    POSITIONS
-// =================================== */
-
-// #draft{
-//     top:115px;
-//     left:20px;
-// }
-
-// #stock{
-//     top:115px;
-//     left:100px;
-// }
-
-// #config{
-//     top:115px;
-//     left:190px;
-// }
-
-// #available{
-//     top:115px;
-//     left:300px;
-// }
-
-// #transfer{
-//     top:40px;
-//     left:420px;
-// }
-
-// #transfer_return{
-//     top:40px;
-//     left:560px;
-// }
-
-// #allocated{
-//     top:190px;
-//     left:420px;
-// }
-
-// #deallocated{
-//     top:190px;
-//     left:550px;
-// }
-
-// #repair{
-//     top:115px;
-//     left:700px;
-// }
-
-// #decommissioned{
-//     top:190px;
-//     left:700px;
-// }
-
-// /* ===================================
-//    SVG
-// =================================== */
-
-// .asset-pipeline svg{
-//     position:absolute;
-//     inset:0;
-//     width:100%;
-//     height:100%;
-//     pointer-events:none;
-//     z-index:1;
-// }
-
-// /* ===================================
-//    FLOW LINE
-// =================================== */
-
-// .flow{
-//     fill:none;
-//     stroke:#cbd5e1;
-//     stroke-width:2.5;
-//     stroke-linecap:round;
-//     stroke-linejoin:round;
-//     stroke-dasharray:5 5;
-//     animation:flowMove 15s linear infinite;
-// }
-
-// /* ===================================
-//    ACTIVE FLOW
-// =================================== */
-
-// .active-flow{
-//     stroke:#22c55e !important;
-//     filter:drop-shadow(0 0 4px rgba(34,197,94,.5));
-// }
-
-// /* ===================================
-//    FLOW ANIMATION
-// =================================== */
-
-// @keyframes flowMove{
-//     from{
-//         stroke-dashoffset:0;
-//     }
-//     to{
-//         stroke-dashoffset:-1000;
-//     }
-// }
-
-// </style>
-
-// <div class="asset-pipeline-wrapper">
-
-// <div class="asset-pipeline">
-
-// <svg>
-
-//     <!-- Draft -> Stock -->
-//     <path class="flow ${frm.doc.status!='Draft' ? 'active-flow' : ''}"
-//         d="M 68 129
-//            C 78 129, 90 129, 100 129"/>
-
-//     <!-- Stock -> Config -->
-//     <path class="flow ${['Configured','Available','Transfer','Transfer Return','Allocated','Deallocated','Repair','Decommissioned'].includes(frm.doc.status) ? 'active-flow' : ''}"
-//         d="M 163 129
-//            C 173 129, 180 129, 190 129"/>
-
-//     <!-- Config -> Available -->
-//     <path class="flow ${['Available','Transfer','Transfer Return','Allocated','Deallocated','Repair','Decommissioned'].includes(frm.doc.status) ? 'active-flow' : ''}"
-//         d="M 271 129
-//            C 281 129, 290 129, 300 129"/>
-
-//     <!-- Available -> Transfer -->
-//     <path class="flow ${['Transfer','Transfer Return'].includes(frm.doc.status) ? 'active-flow' : ''}"
-//         d="M 373 129
-//            C 395 129, 400 54, 420 54"/>
-
-//     <!-- Transfer -> Transfer Return -->
-//     <path class="flow ${frm.doc.status=='Transfer Return' ? 'active-flow' : ''}"
-//         d="M 500 54
-//            C 520 54, 540 54, 560 54"/>
-
-//     <!-- Available -> Allocated -->
-//     <path class="flow ${['Allocated','Deallocated','Repair','Decommissioned'].includes(frm.doc.status) ? 'active-flow' : ''}"
-//         d="M 373 129
-//            C 395 129, 400 204, 420 204"/>
-
-//     <!-- Allocated -> Deallocated -->
-//     <path class="flow ${['Deallocated','Repair','Decommissioned'].includes(frm.doc.status) ? 'active-flow' : ''}"
-//         d="M 510 204
-//            C 520 204, 535 204, 550 204"/>
-
-//     <!-- Deallocated -> Repair -->
-//     <path class="flow ${frm.doc.status=='Repair' ? 'active-flow' : ''}"
-//         d="M 645 204
-//            C 675 204, 675 129, 700 129"/>
-
-//     <!-- Deallocated -> Decommissioned -->
-//     <path class="flow ${frm.doc.status=='Decommissioned' ? 'active-flow' : ''}"
-//         d="M 645 204
-//            C 660 204, 680 204, 700 204"/>
-
-// </svg>
-
-// <!-- BOXES -->
-
-// <div class="asset-node draft ${frm.doc.status=='Draft' ? 'active-draft' : ''}" id="draft">
-//     Draft
-// </div>
-
-// <div class="asset-node stock ${frm.doc.status=='Instock' ? 'active-stock' : ''}" id="stock">
-//     In Stock
-// </div>
-
-// <div class="asset-node config ${frm.doc.status=='Configured' ? 'active-config' : ''}" id="config">
-//     Configured
-// </div>
-
-// <div class="asset-node available ${frm.doc.status=='Available' ? 'active-available' : ''}" id="available">
-//     Available
-// </div>
-
-// <div class="asset-node transfer ${frm.doc.status=='Transfer' ? 'active-transfer' : ''}" id="transfer">
-//     Transfer
-// </div>
-
-// <div class="asset-node transfer ${frm.doc.status=='Transfer Return' ? 'active-transfer' : ''}" id="transfer_return">
-//     Transfer Return
-// </div>
-
-// <div class="asset-node allocate ${frm.doc.status=='Allocated' ? 'active-allocate' : ''}" id="allocated">
-//     Allocated
-// </div>
-
-// <div class="asset-node allocate ${frm.doc.status=='Deallocated' ? 'active-allocate' : ''}" id="deallocated">
-//     Deallocated
-// </div>
-
-// <div class="asset-node repair ${frm.doc.status=='Repair' ? 'active-repair' : ''}" id="repair">
-//     Repair
-// </div>
-
-// <div class="asset-node decommissioned ${frm.doc.status=='Decommissioned' ? 'active-decommissioned' : ''}" id="decommissioned">
-//     Decommission
-// </div>
-
-// </div>
-// </div>
-
-//         `);
-//     }
-// });
-
-
-
-
-
-
+//===============================================================================pipeline==========================================================================
+//Pipline of IT Asset Statuses==============================================================================
+
+frappe.ui.form.on("IT Asset Item", {
+    refresh(frm) {
+
+        frm.dashboard.clear_headline();
+
+        frm.dashboard.set_headline(`
+
+<style>
+
+.form-message.blue{
+    border:none !important;
+    color:inherit !important;
+    background:transparent !important;
+}
+
+/* ===================================
+   DARK MODE
+=================================== */
+
+[data-theme="dark"] .form-message.blue{
+    border:none !important;
+    color:#e5e7eb !important;
+    background:#171717 !important;
+}
+
+/* ===================================
+   REMOVE ERPNext BACKGROUND
+=================================== */
+
+.layout-main-section,
+.form-dashboard-section,
+.form-dashboard{
+    background:transparent !important;
+    border:none !important;
+    box-shadow:none !important;
+}
+
+/* ===================================
+   WRAPPER
+=================================== */
+
+.asset-pipeline-wrapper{
+    width:100%;
+    overflow-x:auto;
+    padding:10px 0;
+    background:transparent;
+}
+
+/* ===================================
+   MAIN CONTAINER
+=================================== */
+
+.asset-pipeline{
+    position:relative;
+    width:840px;
+    height:260px;
+    margin:auto;
+    background:transparent;
+    border:none;
+    border-radius:18px;
+}
+
+/* ===================================
+   BOX STYLE
+=================================== */
+
+.asset-node{
+    position:absolute;
+    padding:7px 15px;
+    border-radius:14px;
+    background:#ffffff;
+    border:2px solid;
+    font-size:11px;
+    font-weight:600;
+    color:#334155;
+    white-space:nowrap;
+    z-index:2;
+    box-shadow:0 2px 8px rgba(0,0,0,0.05);
+    transition:0.25s ease;
+    cursor:pointer;
+}
+
+.asset-node:hover{
+    transform:translateY(-2px);
+}
+
+/* ===================================
+   COLORS
+=================================== */
+
+.draft{
+    border-color:#a855f7;
+}
+
+.stock{
+    border-color:#3b82f6;
+}
+
+.config{
+    border-color:#14b8a6;
+}
+
+.available{
+    border-color:#22c55e;
+}
+
+.transfer{
+    border-color:#f59e0b;
+}
+
+.allocate{
+    border-color:#ef4444;
+}
+
+.repair{
+    border-color:#06b6d4;
+}
+
+.decommissioned{
+    border-color:#64748b;
+}
+
+/* ===================================
+   ACTIVE STATUS FILL
+=================================== */
+
+.active-draft{
+    background:#a855f7 !important;
+    color:#fff !important;
+}
+
+.active-stock{
+    background:#3b82f6 !important;
+    color:#fff !important;
+}
+
+.active-config{
+    background:#14b8a6 !important;
+    color:#fff !important;
+}
+
+.active-available{
+    background:#22c55e !important;
+    color:#fff !important;
+}
+
+.active-transfer{
+    background:#f59e0b !important;
+    color:#fff !important;
+}
+
+.active-allocate{
+    background:#ef4444 !important;
+    color:#fff !important;
+}
+
+.active-repair{
+    background:#06b6d4 !important;
+    color:#fff !important;
+}
+
+.active-decommissioned{
+    background:#64748b !important;
+    color:#fff !important;
+}
+
+/* ===================================
+   POSITIONS
+=================================== */
+
+#draft{
+    top:115px;
+    left:20px;
+}
+
+#stock{
+    top:115px;
+    left:100px;
+}
+
+#config{
+    top:115px;
+    left:190px;
+}
+
+#available{
+    top:115px;
+    left:300px;
+}
+
+#transfer{
+    top:40px;
+    left:420px;
+}
+
+#transfer_return{
+    top:40px;
+    left:560px;
+}
+
+#allocated{
+    top:190px;
+    left:420px;
+}
+
+#deallocated{
+    top:190px;
+    left:550px;
+}
+
+#repair{
+    top:115px;
+    left:700px;
+}
+
+#decommissioned{
+    top:190px;
+    left:700px;
+}
+
+/* ===================================
+   SVG
+=================================== */
+
+.asset-pipeline svg{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    z-index:1;
+}
+
+/* ===================================
+   FLOW LINE
+=================================== */
+
+.flow{
+    fill:none;
+    stroke:#cbd5e1;
+    stroke-width:2.5;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    stroke-dasharray:5 5;
+    animation:flowMove 15s linear infinite;
+}
+
+/* ===================================
+   ACTIVE FLOW
+=================================== */
+
+.active-flow{
+    stroke:#22c55e !important;
+}
+
+/* ===================================
+   FLOW ANIMATION
+=================================== */
+
+@keyframes flowMove{
+    from{
+        stroke-dashoffset:0;
+    }
+    to{
+        stroke-dashoffset:-1000;
+    }
+}
+
+</style>
+
+<div class="asset-pipeline-wrapper">
+
+<div class="asset-pipeline">
+
+<svg>
+
+    <!-- Draft -> Stock -->
+    <path class="flow ${frm.doc.status!='Draft' ? 'active-flow' : ''}"
+        d="M 68 129
+           C 78 129, 90 129, 100 129"/>
+
+    <!-- Stock -> Config -->
+    <path class="flow ${['Configured','Available','Transfer','Transfer Return','Allocated','Deallocated','Under Repair','Decommissioned'].includes(frm.doc.status) ? 'active-flow' : ''}"
+        d="M 163 129
+           C 173 129, 180 129, 190 129"/>
+
+    <!-- Config -> Available -->
+    <path class="flow ${['Available','Transfer','Transfer Return','Allocated','Deallocated','Under Repair','Decommissioned'].includes(frm.doc.status) ? 'active-flow' : ''}"
+        d="M 271 129
+           C 281 129, 290 129, 300 129"/>
+
+    <!-- Available -> Transfer -->
+    <path class="flow ${['Transfer','Transfer Return'].includes(frm.doc.status) ? 'active-flow' : ''}"
+        d="M 373 129
+           C 395 129, 400 54, 420 54"/>
+
+    <!-- Transfer -> Transfer Return -->
+    <path class="flow ${frm.doc.status=='Transfer Return' ? 'active-flow' : ''}"
+        d="M 500 54
+           C 520 54, 540 54, 560 54"/>
+
+    <!-- Available -> Allocated -->
+    <path class="flow ${['Allocated','Deallocated','Under Repair','Decommissioned'].includes(frm.doc.status) ? 'active-flow' : ''}"
+        d="M 373 129
+           C 395 129, 400 204, 420 204"/>
+
+    <!-- Allocated -> Deallocated -->
+    <path class="flow ${['Deallocated','Under Repair','Decommissioned'].includes(frm.doc.status) ? 'active-flow' : ''}"
+        d="M 510 204
+           C 520 204, 535 204, 550 204"/>
+
+    <!-- Deallocated -> Under Repair -->
+    <path class="flow ${frm.doc.status=='Under Repair' ? 'active-flow' : ''}"
+        d="M 645 204
+           C 675 204, 675 129, 700 129"/>
+
+    <!-- Deallocated -> Decommissioned -->
+    <path class="flow ${frm.doc.status=='Decommissioned' ? 'active-flow' : ''}"
+        d="M 645 204
+           C 660 204, 680 204, 700 204"/>
+
+</svg>
+
+<!-- BOXES -->
+
+<div class="asset-node draft ${frm.doc.status=='Draft' ? 'active-draft' : ''}" 
+     id="draft"
+     onclick="frappe.set_route('List','IT Asset Item')">
+    Draft
+</div>
+
+<div class="asset-node stock ${frm.doc.status=='Instock' ? 'active-stock' : ''}" 
+     id="stock"
+     onclick="frappe.set_route('List','IT Asset Item')">
+    In Stock
+</div>
+
+<div class="asset-node config ${frm.doc.status=='Configured' ? 'active-config' : ''}" 
+     id="config"
+     onclick="frappe.set_route('List','IT Software Configuration')">
+    SW Config
+</div>
+
+<div class="asset-node available ${frm.doc.status=='Available' ? 'active-available' : ''}" 
+     id="available"
+     onclick="frappe.set_route('List','IT Asset Item', {status:'Available'})">
+    Available
+</div>
+
+<div class="asset-node transfer ${frm.doc.status=='Transfer' ? 'active-transfer' : ''}" 
+     id="transfer"
+     onclick="frappe.set_route('List','IT Asset Transfer')">
+    Transfer
+</div>
+
+<div class="asset-node transfer ${frm.doc.status=='Transfer Return' ? 'active-transfer' : ''}" 
+     id="transfer_return"
+     onclick="frappe.set_route('List','IT Asset Transfer Return')">
+    Transfer Return
+</div>
+
+<div class="asset-node allocate ${frm.doc.status=='Allocated' ? 'active-allocate' : ''}" 
+     id="allocated"
+     onclick="frappe.set_route('List','IT Asset Allocation')">
+    Allocated
+</div>
+
+<div class="asset-node allocate ${frm.doc.status=='Deallocated' ? 'active-allocate' : ''}" 
+     id="deallocated"
+     onclick="frappe.set_route('List','IT Asset Allocation')">
+    Deallocated
+</div>
+
+<div class="asset-node repair ${frm.doc.status=='Under Repair' ? 'active-repair' : ''}" 
+     id="repair"
+     onclick="frappe.set_route('List','IT Asset Repair')">
+    Repair
+</div>
+x
+<div class="asset-node decommissioned ${frm.doc.status=='Decommissioned' ? 'active-decommissioned' : ''}" 
+     id="decommissioned"
+     
+     onclick="frappe.set_route(
+        'List',
+        'IT Asset Decommissioning',
+        {
+            it_asset_item: '${frm.doc.name}'
+        }
+     )">
+
+    Decommission
+
+</div>
+
+</div>
+</div>
+
+        `);
+    }
+});
+
+
+
+
+//===============================It Asset Trace==========================================================================
+frappe.ui.form.on("IT Asset Item", {
+
+    refresh(frm) {
+
+        // REMOVE OLD BUTTON
+        frm.remove_custom_button("Asset Life Cycle");
+
+        // ADD BUTTON
+        frm.add_custom_button("Asset Life Cycle", function() {
+
+            let d = new frappe.ui.Dialog({
+
+                title: "♻️ IT Asset Life Cycle",
+
+                size: "large",
+
+                fields: [
+                    {
+                        fieldtype: "HTML",
+                        fieldname: "asset_lifecycle_html"
+                    }
+                ]
+            });
+
+            d.show();
+
+            let html = `
+
+            <div style="
+                padding:20px;
+                background:#ffffff;
+                border-radius:16px;
+            ">
+
+                <div style="
+                    font-size:22px;
+                    font-weight:700;
+                    margin-bottom:25px;
+                    color:#111827;
+                ">
+                    ♻️ IT Asset Life Cycle
+                </div>
+
+                <style>
+
+                    .asset-box{
+                        position:relative;
+                        margin-left:25px;
+                        margin-bottom:20px;
+                        border-left:3px solid #3b82f6;
+                        padding-left:25px;
+                    }
+
+                    .asset-circle{
+                        position:absolute;
+                        left:-13px;
+                        top:5px;
+                        width:22px;
+                        height:22px;
+                        border-radius:50%;
+                        background:#2563eb;
+                        color:white;
+                        font-size:12px;
+                        display:flex;
+                        align-items:center;
+                        justify-content:center;
+                        font-weight:bold;
+                    }
+
+                    .asset-header{
+                        background:#eff6ff;
+                        padding:14px 18px;
+                        border-radius:12px;
+                        cursor:pointer;
+                        font-weight:600;
+                        transition:0.3s;
+                        display:flex;
+                        justify-content:space-between;
+                        align-items:center;
+                    }
+
+                    .asset-header:hover{
+                        background:#dbeafe;
+                    }
+
+                    .asset-body{
+                        display:none;
+                        padding:15px;
+                        margin-top:10px;
+                        background:#f9fafb;
+                        border-radius:12px;
+                        line-height:1.9;
+                        color:#374151;
+                    }
+
+                    .asset-open .asset-body{
+                        display:block;
+                    }
+
+                    .asset-arrow{
+                        transition:0.3s;
+                    }
+
+                    .asset-open .asset-arrow{
+                        transform:rotate(90deg);
+                    }
+
+                </style>
+
+                <!-- STEP 0 -->
+
+                <div class="asset-box">
+
+                    <div class="asset-circle">0</div>
+
+                    <div class="asset-header">
+                        🟢 Initial Stage
+                        <span class="asset-arrow">▶</span>
+                    </div>
+
+                    <div class="asset-body">
+                        • Asset Request Created<br>
+                        • Approval Started<br>
+                        • Initial Entry Created
+                    </div>
+
+                </div>
+
+                <!-- STEP 1 -->
+
+                <div class="asset-box">
+
+                    <div class="asset-circle">1</div>
+
+                    <div class="asset-header">
+                        💾 Device Saved
+                        <span class="asset-arrow">▶</span>
+                    </div>
+
+                    <div class="asset-body">
+                        • Device Configuration Added<br>
+                        • Hardware Registered<br>
+                        • Serial Number Saved
+                    </div>
+
+                </div>
+
+                <!-- STEP 2 -->
+
+                <div class="asset-box">
+
+                    <div class="asset-circle">2</div>
+
+                    <div class="asset-header">
+                        👨‍💼 Asset Allocated
+                        <span class="asset-arrow">▶</span>
+                    </div>
+
+                    <div class="asset-body">
+                        • Employee Assigned<br>
+                        • Department Linked<br>
+                        • Allocation Completed
+                    </div>
+
+                </div>
+
+                <!-- STEP 3 -->
+
+                <div class="asset-box">
+
+                    <div class="asset-circle">3</div>
+
+                    <div class="asset-header">
+                        ⚙️ In Use
+                        <span class="asset-arrow">▶</span>
+                    </div>
+
+                    <div class="asset-body">
+                        • Daily Operations Running<br>
+                        • Device Active<br>
+                        • Monitoring Enabled
+                    </div>
+
+                </div>
+
+                <!-- STEP 4 -->
+
+                <div class="asset-box">
+
+                    <div class="asset-circle">4</div>
+
+                    <div class="asset-header">
+                        🔧 Under Repair
+                        <span class="asset-arrow">▶</span>
+                    </div>
+
+                    <div class="asset-body">
+                        • Issue Raised<br>
+                        • Repair Started<br>
+                        • Component Updated<br>
+                        • Replacement Added
+                    </div>
+
+                </div>
+
+                <!-- STEP 5 -->
+
+                <div class="asset-box">
+
+                    <div class="asset-circle">5</div>
+
+                    <div class="asset-header">
+                        ✅ Completed
+                        <span class="asset-arrow">▶</span>
+                    </div>
+
+                    <div class="asset-body">
+                        • Asset Available Again<br>
+                        • Repair Completed<br>
+                        • Device Tested Successfully
+                    </div>
+
+                </div>
+
+                <!-- STEP 6 -->
+
+                <div class="asset-box">
+
+                    <div class="asset-circle">6</div>
+
+                    <div class="asset-header">
+                        ♻️ Retired
+                        <span class="asset-arrow">▶</span>
+                    </div>
+
+                    <div class="asset-body">
+                        • Asset Decommissioned<br>
+                        • Scrap Process Started<br>
+                        • Lifecycle Closed
+                    </div>
+
+                </div>
+
+            </div>
+            `;
+
+            d.fields_dict.asset_lifecycle_html.$wrapper.html(html);
+
+            d.$wrapper.find(".asset-header").on("click", function() {
+
+                $(this)
+                    .parent()
+                    .toggleClass("asset-open");
+
+            });
+
+        });
+
+    }
+
+});
 
 
 
