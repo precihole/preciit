@@ -2,13 +2,16 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "SOFTWARE-CONFIG-.YYYY.-.#####",
- "creation": "2026-04-17 12:41:15.035029",
+ "creation": "2026-05-28 11:35:22.897527",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "asset_section",
   "it_asset_item",
   "status",
+  "column_break_kfoh",
+  "os_configuration_not_required",
+  "software_configuration_not_required",
   "os_details_section",
   "os_details",
   "software_details_section",
@@ -27,6 +30,7 @@
    "label": "OS Details"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "os_details",
    "fieldtype": "Table",
    "label": "OS details",
@@ -38,6 +42,7 @@
    "label": "Software Details"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "software_details",
    "fieldtype": "Table",
    "label": "Software Details",
@@ -68,13 +73,29 @@
    "options": "IT Asset Item",
    "read_only": 1,
    "reqd": 1
+  },
+  {
+   "fieldname": "column_break_kfoh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "os_configuration_not_required",
+   "fieldtype": "Check",
+   "label": "OS Configuration Not Required"
+  },
+  {
+   "default": "0",
+   "fieldname": "software_configuration_not_required",
+   "fieldtype": "Check",
+   "label": "Software Configuration Not Required"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-05-21 15:52:33.009252",
+ "modified": "2026-06-04 15:10:03.267785",
  "modified_by": "Administrator",
  "module": "PreciIT",
  "name": "IT Software Configuration",
@@ -111,5 +132,6 @@
    "color": "Red",
    "title": "Cancled"
   }
- ]
+ ],
+ "track_changes": 1
 }

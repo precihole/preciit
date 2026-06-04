@@ -7,41 +7,38 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "device_configuration_section",
-  "column_break_sagp",
-  "component_brand_name",
-  "component_type",
-  "component_name",
+  "asset_component_basic_details_section",
   "component_category",
-  "component_model",
+  "component_brand_name",
   "component_serial_number",
-  "component_capacity",
   "component_speed",
-  "status",
-  "component_warrenty__expiry",
-  "component_purchase_date",
-  "component_condition",
-  "replaced_component_cost",
-  "column_break_ohfu",
+  "column_break_tlnu",
+  "component_name",
+  "component_type",
+  "component_model",
+  "component_capacity",
+  "asset_component_warrenty_details_section",
   "warrenty_covered",
+  "column_break_hevd",
+  "component_warrenty__expiry",
+  "asset_component_status_section",
+  "status",
+  "column_break_kels",
+  "component_condition",
+  "asset_component_replacement_details_section",
   "component_quantity",
-  "old_device_configuration_row_name",
+  "component_purchase_date",
+  "column_break_bdwh",
+  "replaced_component_cost",
+  "old_device_configuration_row_id",
+  "asset_component_description_section",
   "component_specification",
-  "remarks",
   "issue_description",
+  "column_break_ycjd",
+  "remarks",
   "bill"
  ],
  "fields": [
-  {
-   "fieldname": "device_configuration_section",
-   "fieldtype": "Section Break",
-   "label": "Device Configuration"
-  },
-  {
-   "columns": 2,
-   "fieldname": "column_break_sagp",
-   "fieldtype": "Column Break"
-  },
   {
    "description": "Eg. Corsair",
    "fieldname": "component_brand_name",
@@ -102,7 +99,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Status",
-   "options": "\nActive\nInactive\nAvailable\nAllocated\nRepaired\nDamaged\nReplaced\nRemoved\nFaulty\nDecommissioned"
+   "options": "\nActive\nInactive\nInstalled\nRepaired\nDamaged\nReplaced\nRemoved\nFaulty\nDecommissioned"
   },
   {
    "fieldname": "component_warrenty__expiry",
@@ -120,8 +117,8 @@
    "fieldname": "component_condition",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Component Condition",
-   "options": "\nNew\nGood\nActive\nAvailable\nInstalled\nConfigured\nIn Use\nAllocated\nIdle\nStandby\nUnder Observation\nRepair Required\nUnder Repair\nTesting\nPartially Working\nDamaged\nFaulty\nOverheated\nDisconnected\nMissing\nReplaced\nUpgraded\nDeprecated\nExpired\nInactive\nDisabled\nRemoved\nScrap\nDecommissioned\nDisposed"
+   "label": "Component Current Condition",
+   "options": "\nNew\nGood\nAvailable\nInstalled\nIn Use\nIdle\nUnder Observation\nRepair Required\nUnder Repair\nTesting\nPartially Working\nDamaged\nFaulty\nMissing\nReplaced\nInactive\nRemoved\nScrap\nDecommissioned\nDisposed"
   },
   {
    "fieldname": "warrenty_covered",
@@ -130,7 +127,7 @@
    "options": "\nYes\nNo"
   },
   {
-   "description": "Eg. 2",
+   "description": "Eg. 1",
    "fieldname": "component_quantity",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -161,27 +158,69 @@
    "label": "Bill"
   },
   {
-   "description": "Eg. write the name old component row name.",
-   "fieldname": "old_device_configuration_row_name",
-   "fieldtype": "Data",
-   "label": "Old Device Configuration Row Name",
-   "reqd": 1
-  },
-  {
-   "fieldname": "column_break_ohfu",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "replaced_component_cost",
    "fieldtype": "Currency",
    "label": "Replaced Component Cost"
+  },
+  {
+   "fieldname": "asset_component_basic_details_section",
+   "fieldtype": "Section Break",
+   "label": "Asset Component Basic Details"
+  },
+  {
+   "fieldname": "column_break_tlnu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "asset_component_warrenty_details_section",
+   "fieldtype": "Section Break",
+   "label": "Asset Component Warrenty Details"
+  },
+  {
+   "fieldname": "column_break_hevd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "old_device_configuration_row_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Old Device Configuration Row ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "asset_component_status_section",
+   "fieldtype": "Section Break",
+   "label": "Asset Component Status"
+  },
+  {
+   "fieldname": "column_break_kels",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "asset_component_description_section",
+   "fieldtype": "Section Break",
+   "label": "Asset Component Description"
+  },
+  {
+   "fieldname": "column_break_ycjd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "asset_component_replacement_details_section",
+   "fieldtype": "Section Break",
+   "label": "Asset Component Replacement Details"
+  },
+  {
+   "fieldname": "column_break_bdwh",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-05-25 16:51:29.369343",
+ "modified": "2026-06-04 15:37:42.836694",
  "modified_by": "Administrator",
  "module": "PreciIT",
  "name": "IT Asset Repair Replace Item",

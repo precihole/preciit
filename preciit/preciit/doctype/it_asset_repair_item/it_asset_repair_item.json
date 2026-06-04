@@ -6,52 +6,49 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "device_configuration_section",
-  "column_break_sagp",
+  "asset_component_basic_details_section",
   "component_brand_name",
-  "component_type",
   "component_name",
+  "component_serial_number",
+  "component_speed",
+  "column_break_asmi",
+  "component_type",
   "component_category",
   "component_model",
-  "component_serial_number",
   "component_capacity",
-  "component_speed",
-  "status",
+  "asset_component_warrenty_details_section",
   "component_warrenty__expiry",
+  "column_break_agvs",
+  "warrenty_covered",
+  "asset_component_status_section",
+  "status",
+  "component_condition_after_repair",
+  "column_break_swgi",
+  "component_condition",
+  "asset_component_repair_details_section",
   "component_purchase_date",
   "assigned_technician_name",
-  "component_condition",
+  "component_repair_cost",
+  "column_break_vgbf",
   "component_failure_date",
   "component_repair_completed_date",
-  "component_repair_cost",
-  "warrenty_covered",
   "component_quantity",
-  "component_condition_after_repair",
-  "device_configuration_row_name",
+  "device_configuration_row_id",
+  "asset_component_description_section",
   "component_specification",
   "remarks",
+  "column_break_iait",
   "issue_description",
   "bill"
  ],
  "fields": [
-  {
-   "fieldname": "device_configuration_section",
-   "fieldtype": "Section Break",
-   "label": "Device Configuration"
-  },
-  {
-   "columns": 2,
-   "fieldname": "column_break_sagp",
-   "fieldtype": "Column Break"
-  },
   {
    "description": "Eg. Corsair",
    "fieldname": "component_brand_name",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Component Brand Name",
-   "options": "IT Component Brand Name",
-   "read_only": 1
+   "options": "IT Component Brand Name"
   },
   {
    "fieldname": "component_type",
@@ -103,6 +100,7 @@
    "label": "Component Speed / Frequency"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "status",
    "fieldtype": "Select",
    "in_list_view": 1,
@@ -125,7 +123,7 @@
    "fieldname": "component_condition",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Component Condition",
+   "label": "Component Current Condition",
    "options": "\nNew\nGood\nActive\nAvailable\nInstalled\nConfigured\nIn Use\nAllocated\nIdle\nStandby\nUnder Observation\nRepair Required\nUnder Repair\nTesting\nPartially Working\nDamaged\nFaulty\nOverheated\nDisconnected\nMissing\nReplaced\nUpgraded\nDeprecated\nExpired\nInactive\nDisabled\nRemoved\nScrap\nDecommissioned\nDisposed"
   },
   {
@@ -193,17 +191,63 @@
    "options": "\nGood\nPartial\nScrap"
   },
   {
-   "fieldname": "device_configuration_row_name",
+   "fieldname": "asset_component_basic_details_section",
+   "fieldtype": "Section Break",
+   "label": "Asset Component Basic Details"
+  },
+  {
+   "fieldname": "column_break_asmi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "asset_component_warrenty_details_section",
+   "fieldtype": "Section Break",
+   "label": "Asset Component Warrenty Details"
+  },
+  {
+   "fieldname": "column_break_agvs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "asset_component_status_section",
+   "fieldtype": "Section Break",
+   "label": "Asset Component Status"
+  },
+  {
+   "fieldname": "column_break_swgi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "asset_component_repair_details_section",
+   "fieldtype": "Section Break",
+   "label": "Asset Component Repair Details"
+  },
+  {
+   "fieldname": "column_break_vgbf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "device_configuration_row_id",
    "fieldtype": "Data",
-   "label": "Device Configuration Row Name",
-   "read_only": 1
+   "label": "Device Configuration Row ID",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "asset_component_description_section",
+   "fieldtype": "Section Break",
+   "label": "Asset Component Description"
+  },
+  {
+   "fieldname": "column_break_iait",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-05-25 10:31:43.876699",
+ "modified": "2026-06-04 15:22:24.757931",
  "modified_by": "Administrator",
  "module": "PreciIT",
  "name": "IT Asset Repair Item",

@@ -23,6 +23,7 @@
    "options": "IT Subnet"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "ip_address",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -59,7 +60,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-05-20 12:21:31.493328",
+ "modified": "2026-06-03 17:24:31.553656",
  "modified_by": "Administrator",
  "module": "PreciIT",
  "name": "IT Network Interface Controller Details",

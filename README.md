@@ -1,6 +1,6 @@
 # PreciIT
 
-IT Service & Asset Management for Precihole
+IT Service & Asset Management System.
 
 ## Overview
 

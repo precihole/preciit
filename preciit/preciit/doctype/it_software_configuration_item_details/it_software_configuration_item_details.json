@@ -6,23 +6,30 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "installed_software_details_section",
   "software_name",
-  "software_category",
   "software_vendor",
-  "software_version",
   "software_installation_date",
+  "software_architecture",
+  "column_break_okgp",
+  "software_category",
+  "software_version",
   "software_edition",
+  "software_license_information_section",
   "license_activation_status",
-  "license_type",
   "license_activation_date",
-  "license_key",
   "license_expiration_date",
   "never_expire",
-  "software_architecture",
+  "column_break_nzxm",
+  "license_type",
+  "license_key",
+  "status",
+  "software_backup_and_updates_section",
   "software_backup_enabled",
+  "remarks",
+  "column_break_mxmx",
   "software_latest_backup_date",
-  "software_backup_link",
-  "remark"
+  "software_backup_link"
  ],
  "fields": [
   {
@@ -88,12 +95,6 @@
    "label": "License Activation Date"
   },
   {
-   "fieldname": "license_key",
-   "fieldtype": "Password",
-   "in_list_view": 1,
-   "label": "License Key / Software  Product Key"
-  },
-  {
    "fieldname": "license_expiration_date",
    "fieldtype": "Date",
    "label": "License Expiration Date"
@@ -128,17 +129,56 @@
    "label": "Software Backup link"
   },
   {
-   "fieldname": "remark",
+   "fieldname": "installed_software_details_section",
+   "fieldtype": "Section Break",
+   "label": "Installed Software Details"
+  },
+  {
+   "fieldname": "column_break_okgp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "software_license_information_section",
+   "fieldtype": "Section Break",
+   "label": "Software License Information"
+  },
+  {
+   "fieldname": "column_break_nzxm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "software_backup_and_updates_section",
+   "fieldtype": "Section Break",
+   "label": "Software Backup and Updates"
+  },
+  {
+   "fieldname": "column_break_mxmx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "\nInstalled\nuninstalled\nremoved\ndisabled"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "remarks",
    "fieldtype": "Small Text",
-   "in_list_view": 1,
-   "label": "Remark"
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "license_key",
+   "fieldtype": "Data",
+   "label": "License Key / Software  Product Key"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-05-19 15:22:06.352880",
+ "modified": "2026-06-04 14:18:47.961350",
  "modified_by": "Administrator",
  "module": "PreciIT",
  "name": "IT Software Configuration Item Details",

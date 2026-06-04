@@ -14,9 +14,11 @@
   "asset_repair_item_details",
   "asset_component_replacement_details_section",
   "asset_replacement_item_details",
-  "total_repair_coast_section",
-  "all_component_repair_cost",
-  "amended_from"
+  "asset_repair_and_replacement_cost_section",
+  "total_repair_cost",
+  "amended_from",
+  "column_break_zgeg",
+  "total_replacement_cost"
  ],
  "fields": [
   {
@@ -53,16 +55,6 @@
    "options": "IT Asset Repair Item"
   },
   {
-   "fieldname": "total_repair_coast_section",
-   "fieldtype": "Section Break",
-   "label": "Total Repair Cost"
-  },
-  {
-   "fieldname": "all_component_repair_cost",
-   "fieldtype": "Currency",
-   "label": "All Component Repair Cost"
-  },
-  {
    "fieldname": "amended_from",
    "fieldtype": "Link",
    "label": "Amended From",
@@ -90,13 +82,32 @@
    "fieldtype": "Table",
    "label": "Asset Replacement Item Details",
    "options": "IT Asset Repair Replace Item"
+  },
+  {
+   "fieldname": "asset_repair_and_replacement_cost_section",
+   "fieldtype": "Section Break",
+   "label": "Asset Repair and Replacement Cost"
+  },
+  {
+   "fieldname": "total_repair_cost",
+   "fieldtype": "Currency",
+   "label": "Total Repair Cost"
+  },
+  {
+   "fieldname": "column_break_zgeg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_replacement_cost",
+   "fieldtype": "Currency",
+   "label": "Total Replacement Cost"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-05-25 14:24:35.698238",
+ "modified": "2026-06-04 15:33:19.678226",
  "modified_by": "Administrator",
  "module": "PreciIT",
  "name": "IT Asset Repair",
@@ -137,5 +148,6 @@
    "color": "Red",
    "title": "Cancelled"
   }
- ]
+ ],
+ "track_changes": 1
 }

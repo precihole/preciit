@@ -1,189 +1,52 @@
-# Copyright (c) 2026, Shubham and contributors
-# For license information, please see license.txt
-
-import frappe
-from frappe import _
-from frappe.model.document import Document
-
-
-# class ITAssetRepair(Document):
-
-
-#     # =========================================
-#     # VALIDATE
-#     # =========================================
-
-#     def validate(self):
-
-#         if (
-#             self.docstatus == 0 and
-#             not self.status
-#         ):
-
-#             self.status = "Draft"
-
-
-
-#     # =========================================
-#     # ON SUBMIT
-#     # =========================================
-
-#     def on_submit(self):
-
-#         # UPDATE CURRENT DOC STATUS
-#         self.db_set(
-#             "status",
-#             "Under Repair",
-#             update_modified=False
-#         )
-
-#         # UPDATE IT ASSET ITEM STATUS
-#         if self.it_asset_item:
-
-#             frappe.db.set_value(
-#                 "IT Asset Item",
-#                 self.it_asset_item,
-#                 "status",
-#                 "Under Repair",
-#                 update_modified=False
-#             )
-
-#             frappe.msgprint(
-#                 _("IT Asset Item moved to Under Repair")
-#             )
-
-
-
-#     # =========================================
-#     # ON UPDATE AFTER SUBMIT
-#     # =========================================
-
-#     # def on_update_after_submit(self):
-
-#     #     # COMPLETED REPAIR
-#     #     if self.status == "Completed":
-
-#     #         # ASSET MANDATORY
-#     #         if not self.it_asset_item:
-
-#     #             frappe.throw(
-#     #                 _("IT Asset Item is required")
-#     #             )
-
-#     #         # UPDATE IT ASSET ITEM STATUS
-#     #         frappe.db.set_value(
-#     #             "IT Asset Item",
-#     #             self.it_asset_item,
-#     #             "status",
-#     #             "Available",
-#     #             update_modified=False
-#     #         )
-
-#     #         frappe.msgprint(
-#     #             _("IT Asset Item status updated to Available")
-#     #         )
-    
-
-# 	# =========================================
-# 	# ON UPDATE AFTER SUBMIT
-# 	# =========================================
-
-# 	def on_update_after_submit(self):
-
-# 		# COMPLETED REPAIR
-# 		if self.status == "Completed":
-
-# 			# ASSET MANDATORY
-# 			if not self.it_asset_item:
-
-# 				frappe.throw(
-# 					_("IT Asset Item is required")
-# 				)
-
-# 			# UPDATE IT ASSET ITEM STATUS
-# 			frappe.db.set_value(
-# 				"IT Asset Item",
-# 				self.it_asset_item,
-# 				"status",
-# 				"Available",
-# 				update_modified=False
-# 			)
-
-# 			# =========================================
-# 			# UPDATE DEVICE CONFIGURATION CHILD TABLE
-# 			# =========================================
-
-# 			# CHECK CHILD TABLE ROW NAME
-# 			if self.device_configuration_row_name:
-
-# 				# GET CHILD TABLE ROW
-# 				child_doc = frappe.db.get_value(
-# 					"Device Configuration",
-# 					{
-# 						"name": self.device_configuration_row_name,
-# 						"parent": self.it_asset_item,
-# 						"parenttype": "IT Asset Item"
-# 					},
-# 					"name"
-# 				)
-
-# 				# IF MATCH FOUND
-# 				if child_doc:
-
-# 					# UPDATE CHILD TABLE STATUS
-# 					frappe.db.set_value(
-# 						"Device Configuration",
-# 						self.device_configuration_row_name,
-# 						"status",
-# 						self.status,
-# 						update_modified=False
-# 					)
-
-# 			frappe.msgprint(
-# 				_("IT Asset Item status updated to Available")
-# 			)
-
-
-
-#     # =========================================
-#     # ON CANCEL
-#     # =========================================
-
-#     def on_cancel(self):
-
-#         # UPDATE IT ASSET ITEM STATUS
-#         if self.it_asset_item:
-
-#             frappe.db.set_value(
-#                 "IT Asset Item",
-#                 self.it_asset_item,
-#                 "status",
-#                 "Available",
-#                 update_modified=False
-#             )
-
-#             frappe.msgprint(
-#                 _("IT Asset Item status reverted to Available")
-#             )
-
-#         # UPDATE CURRENT DOC STATUS
-#         self.db_set(
-#             "status",
-#             "Cancelled",
-#             update_modified=False
-#         )
-
-
-
-
 # Copyright (c) 2026, Shubham Mishra and contributors
 # For license information, please see license.txt
 import frappe
 from frappe import _
 from frappe.model.document import Document
 
+from preciit.preciit.doctype.it_asset_item.it_asset_item import (
+    get_document_trace,
+    log_asset_item_child_row_added,
+    log_asset_item_child_row_change,
+    log_document_trace,
+    update_asset_item_status,
+)
+
 
 class ITAssetRepair(Document):
+
+    # =========================================
+    # AFTER INSERT
+    # =========================================
+
+    def after_insert(self):
+
+        self.log_initial_child_rows()
+
+    # =========================================
+    # TRACE INITIAL CHILD ROWS
+    # =========================================
+
+    def log_initial_child_rows(self):
+
+        added = []
+
+        for row in self.asset_repair_item_details or []:
+            added.append(["asset_repair_item_details", row.as_dict()])
+
+        for row in self.asset_replacement_item_details or []:
+            added.append(["asset_replacement_item_details", row.as_dict()])
+
+        if not added:
+            return
+
+        log_document_trace(
+            self.doctype,
+            self.name,
+            added=added,
+            reference_doctype="IT Asset Item",
+            reference_name=self.it_asset_item
+        )
 
     # =========================================
     # VALIDATE
@@ -204,6 +67,12 @@ class ITAssetRepair(Document):
 
     def on_submit(self):
 
+        old_status = frappe.db.get_value(
+            self.doctype,
+            self.name,
+            "status"
+        )
+
         # UPDATE CURRENT DOC STATUS
         self.db_set(
             "status",
@@ -211,15 +80,22 @@ class ITAssetRepair(Document):
             update_modified=False
         )
 
+        log_document_trace(
+            self.doctype,
+            self.name,
+            changed=[["status", old_status, "Under Repair"]],
+            reference_doctype="IT Asset Item",
+            reference_name=self.it_asset_item
+        )
+
         # UPDATE IT ASSET ITEM STATUS
         if self.it_asset_item:
 
-            frappe.db.set_value(
-                "IT Asset Item",
+            update_asset_item_status(
                 self.it_asset_item,
-                "status",
                 "Under Repair",
-                update_modified=False
+                reference_doctype=self.doctype,
+                reference_name=self.name
             )
 
             frappe.msgprint(
@@ -232,6 +108,10 @@ class ITAssetRepair(Document):
 
     def on_update_after_submit(self):
 
+        old_status = _get_before_save_value(self, "status")
+
+        self.log_status_change(old_status, self.status)
+
         # COMPLETED REPAIR
         if self.status == "Completed":
 
@@ -243,12 +123,11 @@ class ITAssetRepair(Document):
                 )
 
             # UPDATE IT ASSET ITEM STATUS
-            frappe.db.set_value(
-                "IT Asset Item",
+            update_asset_item_status(
                 self.it_asset_item,
-                "status",
                 "Available",
-                update_modified=False
+                reference_doctype=self.doctype,
+                reference_name=self.name
             )
 
             # =========================================
@@ -276,6 +155,12 @@ class ITAssetRepair(Document):
                             == device_row.name
                         ):
 
+                            old_status = frappe.db.get_value(
+                                "IT Device Configuration",
+                                device_row.name,
+                                "status"
+                            )
+
                             # UPDATE STATUS
                             frappe.db.set_value(
                                 "IT Device Configuration",
@@ -284,6 +169,17 @@ class ITAssetRepair(Document):
                                 row.status,
                                 update_modified=False
                             )
+
+                            if old_status != row.status:
+                                log_asset_item_child_row_change(
+                                    self.it_asset_item,
+                                    "device_configuration",
+                                    device_row.idx - 1,
+                                    device_row.name,
+                                    [["status", old_status, row.status]],
+                                    reference_doctype=self.doctype,
+                                    reference_name=self.name
+                                )
 
             frappe.msgprint(
                 _("IT Asset Item status updated to Available")
@@ -296,7 +192,7 @@ class ITAssetRepair(Document):
         for d in self.asset_replacement_item_details:
 
             # ADD CHILD ROW DIRECTLY IN DATABASE
-            frappe.get_doc({
+            replacement_row = frappe.get_doc({
                 "doctype": "IT Device Configuration",
                 "parent": self.it_asset_item,
                 "parentfield": "device_configuration",
@@ -336,21 +232,68 @@ class ITAssetRepair(Document):
 
             }).insert(ignore_permissions=True)
 
+            log_asset_item_child_row_added(
+                self.it_asset_item,
+                "device_configuration",
+                replacement_row,
+                reference_doctype=self.doctype,
+                reference_name=self.name
+            )
+
     # =========================================
     # ON CANCEL
     # =========================================
 
     def on_cancel(self):
+        # CHECK LINKED IT ASSET DECOMMISSIONING CHILD TABLE BEFORE CANCELLING THIS DOC
+        if self.it_asset_item:
+            linked_decommissioning = None
+
+            linked_rows = frappe.get_all(
+                "IT System Configuration Item",
+                filters={
+                    "parenttype": "IT Asset Decommissioning",
+                    "parentfield": "it_asset_decommissioning",
+                    "it_asset_item": self.it_asset_item
+                },
+                fields=["parent"],
+                distinct=True
+            )
+
+            for row in linked_rows:
+                parent_docstatus = frappe.db.get_value(
+                    "IT Asset Decommissioning",
+                    row.parent,
+                    "docstatus"
+                )
+
+                if parent_docstatus != 2:
+                    linked_decommissioning = row.parent
+                    break
+
+            if linked_decommissioning:
+                frappe.throw(
+                    _(
+                        "Please cancel linked IT Asset Decommissioning {0} first, "
+                        "then cancel this document."
+                    ).format(
+                        frappe.bold(linked_decommissioning)
+                    )
+                )
+
+        old_status = frappe.db.get_value(
+            self.doctype,
+            self.name,
+            "status"
+        )
 
         # UPDATE IT ASSET ITEM STATUS
         if self.it_asset_item:
-
-            frappe.db.set_value(
-                "IT Asset Item",
+            update_asset_item_status(
                 self.it_asset_item,
-                "status",
                 "Available",
-                update_modified=False
+                reference_doctype=self.doctype,
+                reference_name=self.name
             )
 
             frappe.msgprint(
@@ -363,3 +306,86 @@ class ITAssetRepair(Document):
             "Cancelled",
             update_modified=False
         )
+
+        log_document_trace(
+            self.doctype,
+            self.name,
+            changed=[["status", old_status, "Cancelled"]],
+            reference_doctype="IT Asset Item",
+            reference_name=self.it_asset_item
+        )
+
+    # =========================================
+    # TRACE STATUS CHANGE
+    # =========================================
+
+    def log_status_change(self, old_status, new_status):
+
+        if old_status is None or old_status == new_status:
+            return
+
+        if frappe.get_meta(self.doctype).track_changes:
+            return
+
+        log_document_trace(
+            self.doctype,
+            self.name,
+            changed=[["status", old_status, new_status]],
+            reference_doctype="IT Asset Item",
+            reference_name=self.it_asset_item
+        )
+
+
+
+
+
+@frappe.whitelist()
+def get_asset_repair_trace(asset_repair):
+    if not asset_repair:
+        frappe.throw(_("IT Asset Repair is required"))
+
+    doc = frappe.get_doc(
+        "IT Asset Repair",
+        asset_repair
+    )
+    doc.check_permission("read")
+
+    trace = get_document_trace(
+        "IT Asset Repair",
+        doc.name
+    )
+
+    repair_count = len(doc.asset_repair_item_details or [])
+    replacement_count = len(doc.asset_replacement_item_details or [])
+
+    return {
+        "summary": [
+            {
+                "label": "Repair",
+                "value": doc.name
+            },
+            {
+                "label": "IT Asset Item",
+                "value": doc.it_asset_item
+            },
+            {
+                "label": "Current Status",
+                "value": doc.status
+            },
+            {
+                "label": "Items",
+                "value": repair_count + replacement_count
+            }
+        ],
+        "track_changes": trace.get("track_changes"),
+        "events": trace.get("events", [])
+    }
+
+
+def _get_before_save_value(doc, fieldname):
+    previous_doc = doc.get_doc_before_save()
+
+    if not previous_doc:
+        return None
+
+    return previous_doc.get(fieldname)

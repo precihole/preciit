@@ -1,9 +1,9 @@
 [project]
 name = "preciit"
 authors = [
-    { name = "Precihole Group", email = "nilesha@preciholesports.com"}
+    { name = "Shubham Mishra", email = "Shubham@preciholesports.com"}
 ]
-description = "IT Service & Asset Management for Precihole"
+description = "IT Service & Asset Management System."
 requires-python = ">=3.10"
 readme = "README.md"
 dynamic = ["version"]

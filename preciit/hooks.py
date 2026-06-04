@@ -1,8 +1,8 @@
 app_name = "preciit"
 app_title = "PreciIT"
 app_publisher = "Precihole Group"
-app_description = "IT Service & Asset Management for Precihole"
-app_email = "nilesha@preciholesports.com"
+app_description = "IT Service & Asset Management System."
+app_email = "shubham@preciholesports.com"
 app_license = "mit"
 
 # Apps
@@ -43,7 +43,11 @@ app_license = "mit"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = {
+	"IT Asset Allocation": "public/js/document_trace.js",
+	"IT Asset Repair": "public/js/document_trace.js",
+	"IT Asset Decommissioning": "public/js/document_trace.js"
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -246,4 +250,3 @@ app_license = "mit"
 # ------------
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
-
