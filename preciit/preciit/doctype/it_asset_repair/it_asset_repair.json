@@ -9,6 +9,7 @@
   "asset_section",
   "it_asset_item",
   "status",
+  "column_break_snga",
   "company",
   "asset_repair_item_details_section",
   "asset_repair_item_details",
@@ -101,13 +102,17 @@
    "fieldname": "total_replacement_cost",
    "fieldtype": "Currency",
    "label": "Total Replacement Cost"
+  },
+  {
+   "fieldname": "column_break_snga",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-06-04 15:33:19.678226",
+ "modified": "2026-06-05 11:43:24.809596",
  "modified_by": "Administrator",
  "module": "PreciIT",
  "name": "IT Asset Repair",

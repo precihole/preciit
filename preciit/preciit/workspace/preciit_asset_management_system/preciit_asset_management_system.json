@@ -1,0 +1,78 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"yCRNbMyyhs\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">PRECIIT MANAGEMENT SYSTEM</span>\",\"col\":12}},{\"id\":\"RdSm--A5ih\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"IT Asset Item\",\"col\":3}},{\"id\":\"ntnRJ8AzJ-\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"IT Software Configuration\",\"col\":3}},{\"id\":\"jmnvAnExOW\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"IT Asset Allocation\",\"col\":3}},{\"id\":\"I5BYj3P81V\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"IT Asset Repair\",\"col\":3}},{\"id\":\"lR9xFHwgoS\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"IT Asset Transfer\",\"col\":3}},{\"id\":\"pMGLkS8E7z\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"IT Asset Decommissioning\",\"col\":3}},{\"id\":\"bR1jiW-tO4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"IT Asset Transfer\",\"col\":3}}]",
+ "creation": "2026-05-22 11:11:30.105061",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "setting",
+ "idx": 0,
+ "indicator_color": "",
+ "is_hidden": 0,
+ "label": "PRECIIT ASSET MANAGEMENT SYSTEM",
+ "links": [],
+ "modified": "2026-06-12 12:39:31.890703",
+ "modified_by": "Administrator",
+ "module": "PreciIT",
+ "name": "PRECIIT ASSET MANAGEMENT SYSTEM",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 23.0,
+ "shortcuts": [
+  {
+   "color": "Red",
+   "doc_view": "List",
+   "label": "IT Asset Decommissioning",
+   "link_to": "IT Asset Decommissioning",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "IT Asset Item",
+   "link_to": "IT Asset Item",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Blue",
+   "doc_view": "List",
+   "label": "IT Asset Transfer",
+   "link_to": "IT Asset Transfer",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "IT Software Configuration",
+   "link_to": "IT Software Configuration",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Blue",
+   "doc_view": "List",
+   "label": "IT Asset Allocation",
+   "link_to": "IT Asset Allocation",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Orange",
+   "doc_view": "List",
+   "label": "IT Asset Repair",
+   "link_to": "IT Asset Repair",
+   "stats_filter": "[]",
+   "type": "DocType"
+  }
+ ],
+ "title": "PRECIIT ASSET MANAGEMENT SYSTEM"
+}

@@ -26,19 +26,48 @@ class ITAssetItem(Document):
     # AUTONAME
     # =========================================================
     def autoname(self):
+        # 1. Validate and Fetch Company Abbreviation
+        if not getattr(self, "company", None):
+            frappe.throw(
+                msg="Please select a <b>Company</b> before saving this asset.",
+                title="Missing Company Name"
+            )
+            
+        company_abbr = frappe.db.get_value("Company", self.company, "abbr")
+        
+        # If company exists but has no abbreviation, throw error with link
+        if not company_abbr:
+            company_url = frappe.utils.get_url_to_form("Company", self.company)
+            frappe.throw(
+                msg=f"The selected company does not have an abbreviation setup. "
+                    f"Please <a href='{company_url}' target='_blank'><b>click here</b></a> "
+                    f"to add an abbreviation to the Company master first.",
+                title="Missing Company Abbreviation"
+            )
+
+        # 2. Validate Device Type
+        if not getattr(self, "device_type", None):
+            frappe.throw(
+                msg="<b>Device Type</b> is required. Please select or create a Device Type first.",
+                title="Missing Device Type"
+            )
 
         device_type = (
-            (self.device_type or "GEN")
+            self.device_type
             .strip()
             .upper()
             .replace(" ", "-")
         )
 
-        year = frappe.utils.now_datetime().year
+        # 3. Get current date and format as MMYY
+        current_date = frappe.utils.now_datetime()
+        mmyy = current_date.strftime("%m%y")
 
+        # 4. Generate the final asset name with 4-digit series numbering
         self.name = make_autoname(
-            f"IT-{device_type}-{year}-.#####"
+            f"{company_abbr}-{device_type}-{mmyy}-.####"
         )
+
 
     # =========================================================
     # BEFORE SAVE
