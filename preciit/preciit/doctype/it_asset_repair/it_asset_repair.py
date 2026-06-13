@@ -134,14 +134,6 @@ class ITAssetRepair(Document):
                     _("IT Asset Item is required")
                 )
 
-            # UPDATE IT ASSET ITEM STATUS
-            update_asset_item_status(
-                self.it_asset_item,
-                "Available",
-                reference_doctype=self.doctype,
-                reference_name=self.name
-            )
-
             # =========================================
             # UPDATE DEVICE CONFIGURATION CHILD TABLE
             # =========================================
@@ -155,15 +147,15 @@ class ITAssetRepair(Document):
             # LOOP THROUGH REPAIR CHILD TABLE
             for row in self.asset_repair_item_details:
 
-                # CHECK DEVICE CONFIGURATION ROW NAME
-                if row.device_configuration_row_name:
+                # CHECK DEVICE CONFIGURATION ROW ID
+                if row.device_configuration_row_id:
 
                     # LOOP THROUGH DEVICE CONFIGURATION
                     for device_row in asset_doc.device_configuration:
 
-                        # MATCH CHILD TABLE ROW NAME
+                        # MATCH CHILD TABLE ROW ID
                         if (
-                            row.device_configuration_row_name
+                            row.device_configuration_row_id
                             == device_row.name
                         ):
 
@@ -193,9 +185,25 @@ class ITAssetRepair(Document):
                                     reference_name=self.name
                                 )
 
+            self.add_replacement_items()
+
+            # UPDATE IT ASSET ITEM STATUS ONLY AFTER CHILD TABLE UPDATES SUCCEED
+            update_asset_item_status(
+                self.it_asset_item,
+                "Available",
+                reference_doctype=self.doctype,
+                reference_name=self.name
+            )
+
             frappe.msgprint(
                 _("IT Asset Item status updated to Available")
             )
+
+            return
+
+        self.add_replacement_items()
+
+    def add_replacement_items(self):
 
         # =========================================
         # ADD REPLACEMENT ITEMS
@@ -210,7 +218,7 @@ class ITAssetRepair(Document):
                 "parentfield": "device_configuration",
                 "parenttype": "IT Asset Item",
 
-                "device_configuration_row_name": d.name,
+                "device_configuration_row_id": d.name,
 
                 "component_brand_name": d.component_brand_name,
 
@@ -334,9 +342,6 @@ class ITAssetRepair(Document):
     def log_status_change(self, old_status, new_status):
 
         if old_status is None or old_status == new_status:
-            return
-
-        if frappe.get_meta(self.doctype).track_changes:
             return
 
         log_document_trace(

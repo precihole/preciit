@@ -684,7 +684,7 @@ def update_asset_item_status(asset_item, status, reference_doctype=None, referen
         asset_item,
         "status",
         status,
-        update_modified=False
+        update_modified=True
     )
 
     if old_status != status:
@@ -694,6 +694,35 @@ def update_asset_item_status(asset_item, status, reference_doctype=None, referen
             reference_doctype=reference_doctype,
             reference_name=reference_name
         )
+
+        notify_asset_item_update(asset_item)
+
+
+def notify_asset_item_update(asset_item):
+    if not asset_item:
+        return
+
+    frappe.clear_document_cache(
+        "IT Asset Item",
+        asset_item
+    )
+
+    asset_doc = frappe.get_doc(
+        "IT Asset Item",
+        asset_item
+    )
+
+    asset_doc.notify_update()
+
+    frappe.publish_realtime(
+        "doc_update",
+        {
+            "doctype": "IT Asset Item",
+            "name": asset_item
+        },
+        doctype="IT Asset Item",
+        docname=asset_item
+    )
 
 
 def log_asset_item_child_row_change(

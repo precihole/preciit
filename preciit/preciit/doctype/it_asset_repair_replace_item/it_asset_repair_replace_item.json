@@ -23,6 +23,8 @@
   "component_warrenty__expiry",
   "asset_component_status_section",
   "status",
+  "column_break_erjb",
+  "component_condition",
   "asset_component_replacement_details_section",
   "component_quantity",
   "component_purchase_date",
@@ -203,13 +205,23 @@
   {
    "fieldname": "column_break_bdwh",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "component_condition",
+   "fieldtype": "Select",
+   "label": "Component Condition",
+   "options": "\nNew\nGood\nFair\nOld"
+  },
+  {
+   "fieldname": "column_break_erjb",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-06-13 11:49:34.797978",
+ "modified": "2026-06-13 14:47:10.474745",
  "modified_by": "Administrator",
  "module": "PreciIT",
  "name": "IT Asset Repair Replace Item",

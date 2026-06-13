@@ -5,7 +5,6 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.model.naming import make_autoname
-from frappe.model.naming import make_autoname
 from frappe.utils import now_datetime
 
 from preciit.preciit.doctype.it_asset_item.it_asset_item import (
@@ -44,6 +43,9 @@ class ITAssetAllocation(Document):
     def log_initial_child_rows(self):
 
         added = []
+        reference_asset_item = _get_single_asset_item(
+            self.assigned_device
+        )
 
         for row in self.assigned_device or []:
             added.append(["assigned_device", row.as_dict()])
@@ -54,7 +56,9 @@ class ITAssetAllocation(Document):
         log_document_trace(
             self.doctype,
             self.name,
-            added=added
+            added=added,
+            reference_doctype="IT Asset Item" if reference_asset_item else None,
+            reference_name=reference_asset_item
         )
 
 
@@ -97,6 +101,14 @@ class ITAssetAllocation(Document):
         if not self.assigned_device:
             return
 
+        reference_asset_item = _get_single_asset_item(
+            self.assigned_device
+        )
+        old_status = frappe.db.get_value(
+            self.doctype,
+            self.name,
+            "status"
+        )
         row_changed = []
 
         for row in self.assigned_device:
@@ -153,7 +165,10 @@ class ITAssetAllocation(Document):
         log_document_trace(
             self.doctype,
             self.name,
-            row_changed=row_changed
+            changed=[["status", old_status, "Allocated"]],
+            row_changed=row_changed,
+            reference_doctype="IT Asset Item" if reference_asset_item else None,
+            reference_name=reference_asset_item
         )
 
 
@@ -170,6 +185,9 @@ class ITAssetAllocation(Document):
             self.doctype,
             self.name,
             "status"
+        )
+        reference_asset_item = _get_single_asset_item(
+            self.assigned_device
         )
         row_changed = []
 
@@ -232,58 +250,11 @@ class ITAssetAllocation(Document):
             self.doctype,
             self.name,
             changed=[["status", old_status, "Cancelled"]],
-            row_changed=row_changed
+            row_changed=row_changed,
+            reference_doctype="IT Asset Item" if reference_asset_item else None,
+            reference_name=reference_asset_item
         )
 
-#HELPER FUNCTION
-
-def update_asset_item_status(
-    it_asset_item,
-    status,
-    reference_doctype=None,
-    reference_name=None
-):
-    values = {
-        "status": status
-    }
-
-    # ADD REFERENCE FIELDS ONLY IF THEY EXIST IN IT ASSET ITEM
-    meta = frappe.get_meta("IT Asset Item")
-
-    if meta.has_field("reference_doctype"):
-        values["reference_doctype"] = reference_doctype
-
-    if meta.has_field("reference_name"):
-        values["reference_name"] = reference_name
-
-    frappe.db.set_value(
-        "IT Asset Item",
-        it_asset_item,
-        values,
-        update_modified=True
-    )
-
-    frappe.clear_document_cache(
-        "IT Asset Item",
-        it_asset_item
-    )
-
-    asset_doc = frappe.get_doc(
-        "IT Asset Item",
-        it_asset_item
-    )
-
-    asset_doc.notify_update()
-
-    frappe.publish_realtime(
-        "doc_update",
-        {
-            "doctype": "IT Asset Item",
-            "name": it_asset_item
-        },
-        doctype="IT Asset Item",
-        docname=it_asset_item
-    )
 # ======================
 # DEALLOCATE FUNCTION
 # ======================
@@ -316,6 +287,9 @@ def deallocate_assets(docname):
 		)
 
 	old_status = doc.status
+	reference_asset_item = _get_single_asset_item(
+		doc.assigned_device
+	)
 	row_changed = []
 
 	# DEALLOCATE
@@ -364,7 +338,9 @@ def deallocate_assets(docname):
 		doc.doctype,
 		doc.name,
 		changed=[["status", old_status, "Deallocated"]],
-		row_changed=row_changed
+		row_changed=row_changed,
+		reference_doctype="IT Asset Item" if reference_asset_item else None,
+		reference_name=reference_asset_item
 	)
 
 	frappe.db.commit()
@@ -426,3 +402,15 @@ def _add_child_status_trace(row_changed, table_fieldname, row, old_status, new_s
         row.name,
         [["status", old_status, new_status]]
     ])
+
+
+def _get_single_asset_item(rows):
+    asset_items = []
+
+    for row in rows or []:
+        asset_item = getattr(row, "it_asset_item", None)
+
+        if asset_item and asset_item not in asset_items:
+            asset_items.append(asset_item)
+
+    return asset_items[0] if len(asset_items) == 1 else None

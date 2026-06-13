@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import frappe
+from frappe import _
 from frappe.model.document import Document
 from frappe.model.naming import make_autoname
 from frappe.utils import now_datetime
@@ -38,6 +39,9 @@ class ITAssetDecommissioning(Document):
     def log_initial_child_rows(self):
 
         added = []
+        reference_asset_item = _get_single_asset_item(
+            self.it_asset_decommissioning
+        )
 
         for row in self.it_asset_decommissioning or []:
             added.append(["it_asset_decommissioning", row.as_dict()])
@@ -48,7 +52,9 @@ class ITAssetDecommissioning(Document):
         log_document_trace(
             self.doctype,
             self.name,
-            added=added
+            added=added,
+            reference_doctype="IT Asset Item" if reference_asset_item else None,
+            reference_name=reference_asset_item
         )
 
     # ======================
@@ -67,6 +73,9 @@ class ITAssetDecommissioning(Document):
         )
 
         row_changed = []
+        reference_asset_item = _get_single_asset_item(
+            self.it_asset_decommissioning
+        )
 
         for row in self.it_asset_decommissioning:
 
@@ -127,30 +136,11 @@ class ITAssetDecommissioning(Document):
             self.doctype,
             self.name,
             changed=[["status", old_status, "Decommissioned"]],
-            row_changed=row_changed
+            row_changed=row_changed,
+            reference_doctype="IT Asset Item" if reference_asset_item else None,
+            reference_name=reference_asset_item
         )
 
-    def update_asset_item_status(
-        it_asset_item,
-        status,
-        reference_doctype=None,
-        reference_name=None
-    ):
-        frappe.db.set_value(
-            "IT Asset Item",
-            it_asset_item,
-            {
-                "status": status,
-                "reference_doctype": reference_doctype,
-                "reference_name": reference_name
-            },
-            update_modified=True
-        )
-
-        frappe.clear_document_cache(
-            "IT Asset Item",
-            it_asset_item
-        )
     # ======================
     # ON CANCEL
     # ======================
@@ -164,6 +154,9 @@ class ITAssetDecommissioning(Document):
             self.doctype,
             self.name,
             "status"
+        )
+        reference_asset_item = _get_single_asset_item(
+            self.it_asset_decommissioning
         )
         row_changed = []
 
@@ -226,55 +219,11 @@ class ITAssetDecommissioning(Document):
             self.doctype,
             self.name,
             changed=[["status", old_status, "Cancelled"]],
-            row_changed=row_changed
+            row_changed=row_changed,
+            reference_doctype="IT Asset Item" if reference_asset_item else None,
+            reference_name=reference_asset_item
         )
-# HELPER FUNCTIONS
-def update_asset_item_status(
-    it_asset_item,
-    status,
-    reference_doctype=None,
-    reference_name=None
-):
-    values = {
-        "status": status
-    }
 
-    meta = frappe.get_meta("IT Asset Item")
-
-    if meta.has_field("reference_doctype"):
-        values["reference_doctype"] = reference_doctype
-
-    if meta.has_field("reference_name"):
-        values["reference_name"] = reference_name
-
-    frappe.db.set_value(
-        "IT Asset Item",
-        it_asset_item,
-        values,
-        update_modified=True
-    )
-
-    frappe.clear_document_cache(
-        "IT Asset Item",
-        it_asset_item
-    )
-
-    asset_doc = frappe.get_doc(
-        "IT Asset Item",
-        it_asset_item
-    )
-
-    asset_doc.notify_update()
-
-    frappe.publish_realtime(
-        "doc_update",
-        {
-            "doctype": "IT Asset Item",
-            "name": it_asset_item
-        },
-        doctype="IT Asset Item",
-        docname=it_asset_item
-    )
 
 @frappe.whitelist()
 def get_asset_decommissioning_trace(asset_decommissioning):
@@ -337,3 +286,15 @@ def _add_child_status_trace(row_changed, table_fieldname, row, old_status, new_s
         row.name,
         [["status", old_status, new_status]]
     ])
+
+
+def _get_single_asset_item(rows):
+    asset_items = []
+
+    for row in rows or []:
+        asset_item = getattr(row, "it_asset_item", None)
+
+        if asset_item and asset_item not in asset_items:
+            asset_items.append(asset_item)
+
+    return asset_items[0] if len(asset_items) == 1 else None
