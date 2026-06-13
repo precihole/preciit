@@ -251,7 +251,7 @@ bench --site [sitename] install-app preciit
 
 ## Author
 
-**Shubham Mishra** — shubahm@preciholesports.com
+**Shubham Mishra** — shubham@preciholesports.com
 
 ## License
 

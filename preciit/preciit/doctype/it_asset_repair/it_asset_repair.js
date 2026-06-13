@@ -15,6 +15,7 @@ let repair_item_status_reverting = {};
 frappe.ui.form.on("IT Asset Repair", {
 	onload_post_render(frm) {
 		remember_repair_item_statuses(frm);
+		bind_repair_item_status_memory(frm);
 	},
 
 	refresh(frm) {
@@ -25,6 +26,7 @@ frappe.ui.form.on("IT Asset Repair", {
 		calculate_total_component_repair_cost(frm);
 		calculate_total_component_replace_cost(frm);
 		remember_repair_item_statuses(frm);
+		bind_repair_item_status_memory(frm);
 
 		// =====================================
 		// REPAIR COMPLETED BUTTON
@@ -78,6 +80,15 @@ frappe.ui.form.on("IT Asset Repair", {
 // =====================================
 
 frappe.ui.form.on("IT Asset Repair Item", {
+	form_render(frm, cdt, cdn) {
+		let row = locals[cdt][cdn];
+
+		remember_repair_item_status(
+			row,
+			get_repair_item_status_key(row, cdn)
+		);
+	},
+
 	status(frm, cdt, cdn) {
 		let row = locals[cdt][cdn];
 		let row_key = get_repair_item_status_key(row, cdn);
@@ -95,14 +106,31 @@ frappe.ui.form.on("IT Asset Repair Item", {
 		}
 
 		if (!row.issue_description) {
-			frappe.msgprint(
+			let previous_status = get_previous_repair_item_status(
+				row,
+				row_key
+			);
+			let dialog = frappe.msgprint(
 				__("Issue Description is required in row {0} for Component Type {1} before using status {2}.", [
-					row.idx,
+					get_repair_item_row_label(frm, row, cdn),
 					row.component_type || __("Not Set"),
 					row.status
 				])
 			);
-			revert_repair_item_status(cdt, cdn, row_key);
+			revert_repair_item_status(
+				frm,
+				cdt,
+				cdn,
+				row_key,
+				previous_status
+			);
+			keep_repair_item_row_open(frm, cdn, "issue_description");
+
+			if (dialog && dialog.$wrapper) {
+				dialog.$wrapper.one("hidden.bs.modal", () => {
+					keep_repair_item_row_open(frm, cdn, "issue_description");
+				});
+			}
 			return;
 		}
 
@@ -208,7 +236,9 @@ function calculate_total_component_replace_cost(frm) {
 	frm.set_value("total_replacement_cost", total);
 }
 
-
+// =====================================
+// VALIDATE REPAIR ITEM ISSUE DESCRIPTIONS
+// =====================================
 function validate_repair_item_issue_descriptions(frm) {
 	let missing_rows = (frm.doc.asset_repair_item_details || []).filter(row => {
 		return requires_replacement_item(row.status) && !row.issue_description;
@@ -237,17 +267,30 @@ function requires_replacement_item(status) {
 
 function remember_repair_item_statuses(frm) {
 	(frm.doc.asset_repair_item_details || []).forEach(row => {
-		remember_repair_item_status(row, row.name);
+		remember_repair_item_status(
+			row,
+			get_repair_item_status_key(row, row.name)
+		);
 	});
 }
 
 
 function remember_repair_item_status(row, row_key) {
-	if (!row || !row_key) {
+	if (!row) {
 		return;
 	}
 
-	repair_item_previous_status[row_key] = row.status || "";
+	let status = row.status || "";
+
+	if (row_key) {
+		repair_item_previous_status[row_key] = status;
+	}
+
+	if (row.name) {
+		repair_item_previous_status[row.name] = status;
+	}
+
+	row.__previous_status = status;
 }
 
 
@@ -256,15 +299,111 @@ function get_repair_item_status_key(row, cdn) {
 }
 
 
-function revert_repair_item_status(cdt, cdn, row_key) {
+function get_previous_repair_item_status(row, row_key) {
+	if (
+		row_key &&
+		Object.prototype.hasOwnProperty.call(
+			repair_item_previous_status,
+			row_key
+		)
+	) {
+		return repair_item_previous_status[row_key] || "";
+	}
+
+	if (row && row.__previous_status !== undefined) {
+		return row.__previous_status || "";
+	}
+
+	return "";
+}
+
+
+function revert_repair_item_status(frm, cdt, cdn, row_key, previous_status) {
 	repair_item_status_reverting[row_key] = true;
 
-	frappe.model.set_value(
+	return frappe.model.set_value(
 		cdt,
 		cdn,
 		"status",
-		repair_item_previous_status[row_key] || ""
-	);
+		previous_status || ""
+	).then(() => {
+		let row = locals[cdt][cdn];
+
+		remember_repair_item_status(row, row_key);
+		keep_repair_item_row_open(frm, cdn, "issue_description");
+	});
+}
+
+
+function bind_repair_item_status_memory(frm) {
+	let grid = frm.fields_dict.asset_repair_item_details
+		&& frm.fields_dict.asset_repair_item_details.grid;
+
+	if (!grid || !grid.wrapper) {
+		return;
+	}
+
+	grid.wrapper
+		.off(
+			"focusin.repair_item_status_memory",
+			'[data-fieldname="status"] input, [data-fieldname="status"] select'
+		)
+		.on(
+			"focusin.repair_item_status_memory",
+			'[data-fieldname="status"] input, [data-fieldname="status"] select',
+			function () {
+				let row_name = $(this).closest(".grid-row").attr("data-name");
+				let row = row_name && locals["IT Asset Repair Item"][row_name];
+
+				remember_repair_item_status(
+					row,
+					get_repair_item_status_key(row, row_name)
+				);
+			}
+		);
+}
+
+
+function keep_repair_item_row_open(frm, cdn, fieldname) {
+	setTimeout(() => {
+		let grid_row = get_repair_item_grid_row(frm, cdn);
+
+		if (!grid_row) {
+			return;
+		}
+
+		grid_row.toggle_view(true, () => {
+			let field = grid_row.grid_form
+				&& grid_row.grid_form.fields_dict
+				&& grid_row.grid_form.fields_dict[fieldname];
+
+			if (field && field.set_focus) {
+				field.set_focus();
+			}
+		});
+	}, 100);
+}
+
+
+function get_repair_item_grid_row(frm, cdn) {
+	let grid = frm.fields_dict.asset_repair_item_details
+		&& frm.fields_dict.asset_repair_item_details.grid;
+
+	return grid
+		&& grid.grid_rows_by_docname
+		&& grid.grid_rows_by_docname[cdn];
+}
+
+
+function get_repair_item_row_label(frm, row, cdn) {
+	if (row.idx) {
+		return row.idx;
+	}
+
+	let rows = frm.doc.asset_repair_item_details || [];
+	let row_index = rows.findIndex(item => item.name === cdn);
+
+	return row_index >= 0 ? row_index + 1 : cdn;
 }
 
 
