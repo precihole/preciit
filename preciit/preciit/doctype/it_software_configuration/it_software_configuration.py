@@ -5,6 +5,9 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.model.naming import make_autoname
+from datetime import datetime
+from frappe.utils import now_datetime
+
 
 from preciit.preciit.doctype.it_asset_item.it_asset_item import (
     _get_child_field_changes,
@@ -25,6 +28,16 @@ SOFTWARE_CONFIGURATION_STATUS_TABLES = (
 
 
 class ITSoftwareConfiguration(Document):
+
+     # ======================
+    # AUTONAME
+    # ======================
+    def autoname(self):
+        mmyy = now_datetime().strftime("%m%y")
+
+        self.name = make_autoname(
+            f"SOFTWARE-CONFIG-{mmyy}-.####"
+        )
 
     # ======================
     # VALIDATE

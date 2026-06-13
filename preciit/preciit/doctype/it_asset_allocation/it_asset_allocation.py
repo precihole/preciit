@@ -5,6 +5,9 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.model.naming import make_autoname
+from frappe.model.naming import make_autoname
+from frappe.utils import now_datetime
+
 from preciit.preciit.doctype.it_asset_item.it_asset_item import (
     get_document_trace,
     log_document_trace,
@@ -18,17 +21,12 @@ class ITAssetAllocation(Document):
     # AUTONAME
     # ======================
 
+   
     def autoname(self):
+        employee = (self.employee_name or "EMPLOYEE").strip().upper().replace(" ", "-")
+        date_part = now_datetime().strftime("%d-%m-%Y")
 
-        employee = (
-            self.employee_name or "EMP"
-        ).replace(" ", "-").upper()
-
-        year = frappe.utils.now_datetime().year
-
-        self.name = make_autoname(
-            f"{employee}-{year}-.#####"
-        )
+        self.name = make_autoname(f"{employee}-{date_part}-.####")
 
     # ======================
     # AFTER INSERT

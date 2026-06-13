@@ -3,6 +3,8 @@
 
 import frappe
 from frappe.model.document import Document
+from frappe.model.naming import make_autoname
+from frappe.utils import now_datetime
 from preciit.preciit.doctype.it_asset_item.it_asset_item import (
     get_document_trace,
     log_document_trace,
@@ -11,6 +13,14 @@ from preciit.preciit.doctype.it_asset_item.it_asset_item import (
 
 
 class ITAssetDecommissioning(Document):
+
+    # ======================
+    # AFTER INSERT
+    # ======================
+
+    def autoname(self):
+        date_part = now_datetime().strftime("%d-%m-%Y")
+        self.name = make_autoname(f"ASSET-DECOM-{date_part}-.####")
 
     # ======================
     # AFTER INSERT

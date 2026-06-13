@@ -1,7 +1,6 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "ASSET-DECOMMISSIONED-.YYYY.-.#####",
  "creation": "2026-02-27 16:42:47.231298",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -84,11 +83,10 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-05-22 15:15:24.516791",
+ "modified": "2026-06-13 10:30:18.058879",
  "modified_by": "Administrator",
  "module": "PreciIT",
  "name": "IT Asset Decommissioning",
- "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
@@ -109,7 +107,6 @@
  "rows_threshold_for_grid_search": 20,
  "sort_field": "modified",
  "sort_order": "DESC",
- "track_changes": 1,
  "states": [
   {
    "color": "Gray",
@@ -123,5 +120,6 @@
    "color": "Red",
    "title": "cancelled"
   }
- ]
+ ],
+ "track_changes": 1
 }

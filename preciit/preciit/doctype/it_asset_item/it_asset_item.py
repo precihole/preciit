@@ -10,14 +10,14 @@
 
 import ipaddress
 from unicodedata import name
-
 import frappe
 from frappe.model.document import Document
 from frappe.model.naming import make_autoname
 import re
 from frappe import _
-
-
+import frappe
+from frappe.model.naming import make_autoname
+from frappe.utils import now_datetime
 
 
 class ITAssetItem(Document):
@@ -25,6 +25,8 @@ class ITAssetItem(Document):
     # =========================================================
     # AUTONAME
     # =========================================================
+
+
     def autoname(self):
         # 1. Validate and Fetch Company Abbreviation
         if not getattr(self, "company", None):
@@ -32,9 +34,9 @@ class ITAssetItem(Document):
                 msg="Please select a <b>Company</b> before saving this asset.",
                 title="Missing Company Name"
             )
-            
+
         company_abbr = frappe.db.get_value("Company", self.company, "abbr")
-        
+
         # If company exists but has no abbreviation, throw error with link
         if not company_abbr:
             company_url = frappe.utils.get_url_to_form("Company", self.company)
@@ -59,15 +61,14 @@ class ITAssetItem(Document):
             .replace(" ", "-")
         )
 
-        # 3. Get current date and format as MMYY
+        # 3. Get current date and format as DD-MM-YYYY
         current_date = frappe.utils.now_datetime()
-        mmyy = current_date.strftime("%m%y")
+        date_part = current_date.strftime("%d-%m-%Y")
 
         # 4. Generate the final asset name with 4-digit series numbering
         self.name = make_autoname(
-            f"{company_abbr}-{device_type}-{mmyy}-.####"
+            f"{company_abbr}-{device_type}-{date_part}-.####"
         )
-
 
     # =========================================================
     # BEFORE SAVE

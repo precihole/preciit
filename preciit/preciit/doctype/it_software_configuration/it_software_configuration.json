@@ -1,7 +1,6 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "SOFTWARE-CONFIG-.YYYY.-.#####",
  "creation": "2026-05-28 11:35:22.897527",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -95,11 +94,10 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-06-04 15:10:03.267785",
+ "modified": "2026-06-13 09:55:13.278973",
  "modified_by": "Administrator",
  "module": "PreciIT",
  "name": "IT Software Configuration",
- "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
