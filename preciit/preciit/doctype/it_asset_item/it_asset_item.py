@@ -12,12 +12,9 @@ import ipaddress
 from unicodedata import name
 import frappe
 from frappe.model.document import Document
-from frappe.model.naming import make_autoname
+from frappe.model.naming import getseries
 import re
 from frappe import _
-import frappe
-from frappe.model.naming import make_autoname
-from frappe.utils import now_datetime
 
 
 class ITAssetItem(Document):
@@ -65,9 +62,34 @@ class ITAssetItem(Document):
         current_date = frappe.utils.now_datetime()
         date_part = current_date.strftime("%d-%m-%Y")
 
-        # 4. Generate the final asset name with 4-digit series numbering
-        self.name = make_autoname(
-            f"{company_abbr}-{device_type}-{date_part}-.####"
+        # 4. Keep one global counter independent from company, device type, and date.
+        series_key = "IT-ASSET-ITEM-"
+        self.sync_asset_item_series(series_key)
+        series_number = getseries(series_key, 4)
+        self.name = f"{company_abbr}-{device_type}-{date_part}-{series_number}"
+
+    def sync_asset_item_series(self, series_key):
+        max_existing = 0
+        name_pattern = re.compile(r"-(\d+)$")
+
+        for docname in frappe.get_all(
+            self.doctype,
+            pluck="name",
+        ):
+            suffix_match = name_pattern.search(docname)
+            if suffix_match:
+                max_existing = max(max_existing, int(suffix_match.group(1)))
+
+        if not max_existing:
+            return
+
+        frappe.db.sql(
+            """
+            INSERT INTO `tabSeries` (`name`, `current`)
+            VALUES (%s, %s)
+            ON DUPLICATE KEY UPDATE `current` = GREATEST(`current`, VALUES(`current`))
+            """,
+            (series_key, max_existing),
         )
 
     # =========================================================
